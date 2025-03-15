@@ -15,6 +15,12 @@ questions = [
         "default": ""
     },
     {
+        "type": "text",
+        "name": "package_name",
+        "message": "Package name:",
+        "default": "ragapp"
+    },
+    {
         "type": "list",
         "name": "vector_db",
         "message": "Vector database to use:",

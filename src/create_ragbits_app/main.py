@@ -65,14 +65,28 @@ def create_project(template_name: str, project_path: str, context: Dict) -> None
     # Create project directory if it doesn't exist
     os.makedirs(project_path, exist_ok=True)
     
-    # Copy template files to project directory
+    # Process all template files and directories
     for item in template_path.glob("**/*"):
         if item.name == "template_config.py":
             continue  # Skip template config file
             
         # Get relative path from template root
-        rel_path = item.relative_to(template_path)
-        target_path = pathlib.Path(project_path) / rel_path
+        rel_path = str(item.relative_to(template_path))
+        
+        # Process path parts for Jinja templating (for directory names)
+        path_parts = []
+        for part in pathlib.Path(rel_path).parts:
+            if "{{" in part and "}}" in part:
+                # Render the directory name as a template
+                name_template = jinja2.Template(part)
+                rendered_part = name_template.render(**context)
+                path_parts.append(rendered_part)
+            else:
+                path_parts.append(part)
+        
+        # Construct the target path with processed directory names
+        target_rel_path = os.path.join(*path_parts) if path_parts else ""
+        target_path = pathlib.Path(project_path) / target_rel_path
         
         if item.is_dir():
             os.makedirs(target_path, exist_ok=True)
@@ -91,6 +105,8 @@ def create_project(template_name: str, project_path: str, context: Dict) -> None
                 with open(target_path, "w") as f:
                     f.write(rendered_content)
             else:
+                # Create parent directories if they don't exist
+                os.makedirs(target_path.parent, exist_ok=True)
                 # Simple file copy
                 shutil.copy2(item, target_path)
     

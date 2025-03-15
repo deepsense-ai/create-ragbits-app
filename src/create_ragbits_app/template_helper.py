@@ -102,6 +102,7 @@ def create_template():
     print(f"Template '{template_name}' created at {template_path}")
     print("Add your template files to this directory.")
     print("Use .j2 extension for files that should be processed as Jinja2 templates.")
+    print("You can use Jinja2 variables in directory names with {{variable_name}} syntax.")
     print("Available variables in templates:")
     print("  - project_name: Name of the project")
     print("  - ragbits_version: Latest version of ragbits")
