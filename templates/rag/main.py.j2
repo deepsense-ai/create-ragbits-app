@@ -1,0 +1,71 @@
+"""
+Main entry point for the {{ project_name }} application.
+"""
+import os
+from ragbits import RAGPipeline
+from ragbits.document_loaders import DirectoryLoader
+from ragbits.text_splitters import RecursiveCharacterTextSplitter
+{% if vector_db == "chroma" %}
+from ragbits.vector_stores import ChromaVectorStore
+{% elif vector_db == "qdrant" %}
+from ragbits.vector_stores import QdrantVectorStore
+{% elif vector_db == "pinecone" %}
+from ragbits.vector_stores import PineconeVectorStore
+{% endif %}
+from ragbits.llm import OpenAILLM
+
+def main():
+    # Initialize document loader
+    loader = DirectoryLoader("./documents")
+    
+    # Initialize text splitter
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
+    )
+    
+    # Initialize vector store
+    {% if vector_db == "chroma" %}
+    vector_store = ChromaVectorStore(
+        collection_name="{{ project_name }}",
+        persist_directory="./chroma_db"
+    )
+    {% elif vector_db == "qdrant" %}
+    vector_store = QdrantVectorStore(
+        collection_name="{{ project_name }}"
+    )
+    {% elif vector_db == "pinecone" %}
+    vector_store = PineconeVectorStore(
+        index_name="{{ project_name }}"
+    )
+    {% endif %}
+    
+    # Initialize LLM
+    llm = OpenAILLM(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        model="gpt-3.5-turbo"
+    )
+    
+    # Create RAG pipeline
+    rag_pipeline = RAGPipeline(
+        document_loader=loader,
+        text_splitter=text_splitter,
+        vector_store=vector_store,
+        llm=llm
+    )
+    
+    # Process documents
+    rag_pipeline.process_documents()
+    
+    # Interactive query loop
+    print("RAG Pipeline initialized. Type 'exit' to quit.")
+    while True:
+        query = input("\nEnter your question: ")
+        if query.lower() == "exit":
+            break
+        
+        response = rag_pipeline.query(query)
+        print(f"\nResponse: {response}")
+
+if __name__ == "__main__":
+    main()

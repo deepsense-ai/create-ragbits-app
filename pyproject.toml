@@ -25,3 +25,23 @@ packages = ["src/create_ragbits_app"]
 
 [tool.uv.workspace]
 members = ["templates/rag"]
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "create-ragbits-app"
+version = "0.1.0"
+description = "Create a new ragbits application from templates"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = [
+    "aiohttp",
+    "inquirer",
+    "jinja2",
+]
+
+[project.scripts]
+create-ragbits-app = "create_ragbits_app.main:entrypoint"
+create-ragbits-template = "create_ragbits_app.template_helper:create_template"

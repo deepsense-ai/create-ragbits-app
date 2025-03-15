@@ -1,0 +1,29 @@
+# {{ project_name }}
+
+A RAG (Retrieval Augmented Generation) application built with ragbits.
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Run the application:
+```bash
+python main.py
+```
+
+## Configuration
+
+This project uses {{ vector_db }} as the vector database.
+
+{% if include_examples %}
+Example documents are included in the `documents/` directory.
+{% else %}
+Add your documents to the `documents/` directory.
+{% endif %}
+
+## Author
+
+{{ author_name }}

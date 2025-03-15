@@ -1,0 +1,8 @@
+ragbits=={{ ragbits_version }}
+{% if vector_db == "chroma" %}
+chromadb>=0.4.0
+{% elif vector_db == "qdrant" %}
+qdrant-client>=1.1.0
+{% elif vector_db == "pinecone" %}
+pinecone-client>=2.2.0
+{% endif %}
