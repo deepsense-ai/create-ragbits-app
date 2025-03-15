@@ -6,7 +6,7 @@ import pathlib
 import shutil
 from typing import Dict, List
 
-from inquirer.shortcuts import list_input, text_input, confirm
+from inquirer.shortcuts import list_input, text, confirm
 
 TEMPLATES_DIR = pathlib.Path(__file__).parent.parent.parent / "templates"
 
@@ -15,7 +15,7 @@ def create_template():
     print("Creating a new template for create-ragbits-app")
     
     # Get template name
-    template_name = text_input("Template name:")
+    template_name = text("Template name:")
     template_path = TEMPLATES_DIR / template_name
     
     if template_path.exists():
@@ -32,7 +32,7 @@ def create_template():
     os.makedirs(template_path, exist_ok=True)
     
     # Create template_config.py
-    template_description = text_input("Template description:")
+    template_description = text("Template description:")
     
     # Define questions for the template
     questions = []
@@ -41,8 +41,8 @@ def create_template():
         if not add_question:
             break
         
-        q_name = text_input("Question name (variable name):")
-        q_message = text_input("Question message:", default=q_name)
+        q_name = text("Question name (variable name):")
+        q_message = text("Question message:", default=q_name)
         q_type = list_input(
             "Question type:",
             choices=["text", "list", "confirm"],
@@ -56,13 +56,13 @@ def create_template():
         }
         
         if q_type == "text":
-            q_default = text_input("Default value (optional):")
+            q_default = text("Default value (optional):")
             if q_default:
                 question["default"] = q_default
         elif q_type == "list":
             choices = []
             while True:
-                choice = text_input("Add choice (empty to finish):")
+                choice = text("Add choice (empty to finish):")
                 if not choice:
                     break
                 choices.append(choice)

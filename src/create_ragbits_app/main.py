@@ -4,7 +4,7 @@ import shutil
 import pathlib
 from typing import Dict, List, Optional
 
-from inquirer.shortcuts import list_input, text_input, confirm
+from inquirer.shortcuts import list_input, text, confirm
 import aiohttp
 import jinja2
 
@@ -54,7 +54,7 @@ def prompt_template_questions(template_config: Dict) -> Dict:
         elif q_type == "confirm":
             answers[q_name] = confirm(q_message, default=q_default)
         else:  # Default to text input
-            answers[q_name] = text_input(q_message, default=q_default)
+            answers[q_name] = text(q_message, default=q_default)
     
     return answers
 
@@ -114,7 +114,7 @@ async def run():
     )
     
     # Get project name
-    project_name = text_input("Project name:", default=f"ragbits-{selected_template}")
+    project_name = text("Project name:", default=f"ragbits-{selected_template}")
     project_path = os.path.abspath(project_name)
     
     # Check if directory exists and is not empty
