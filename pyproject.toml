@@ -1,0 +1,27 @@
+[project]
+name = "create-ragbits-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.11.13",
+    "inquirer>=3.4.0",
+]
+
+
+[project.scripts]
+create-ragbits-app = "create_ragbits_app.main:entrypoint"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/create_ragbits_app"]
+
+[tool.uv.workspace]
+members = ["templates/rag"]
