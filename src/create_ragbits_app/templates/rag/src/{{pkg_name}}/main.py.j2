@@ -1,0 +1,43 @@
+"""
+Main entry point for the {{ project_name }} application.
+"""
+import asyncio
+
+from pydantic import BaseModel
+from ragbits.core.prompt import Prompt
+
+from {{pkg_name}}.components import get_llm, get_document_search
+
+
+class QAPromptInput(BaseModel):
+    question: str
+    contexts: list[str]
+
+class QAPrompt(Prompt[QAPromptInput, str]):
+    system_prompt = """
+    Your task is to answer user questions based on context.
+    If the question is not related to the context, say that the question is not related.
+    
+    <context>
+    {% for context in contexts %}
+    {{context}}
+    {% endfor %}
+    </context>
+    """
+
+    user_prompt = "{{ question }}"
+
+async def reply(question: str):
+    llm = get_llm()
+    document_search = get_document_search()
+
+    context = await document_search.search(question)
+
+    async for chunk in llm.generate_streaming(
+        QAPrompt(QAPromptInput(question=question, contexts=[ctx.text_representation for ctx in context]))
+    ):
+        print(chunk, end="")
+
+
+if __name__ == '__main__':
+    asyncio.run(reply("In what countries in 2018 there was signs of yellow fever?"))

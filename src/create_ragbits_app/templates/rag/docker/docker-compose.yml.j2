@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant-db
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - /opt/qdrant_storage_ragbits_{{pkg_name}}:/qdrant/storage:z
+    restart: unless-stopped

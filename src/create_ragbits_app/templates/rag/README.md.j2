@@ -1,0 +1,26 @@
+# {{ project_name }}
+
+A RAG (Retrieval Augmented Generation) application built with ragbits.
+You can read more about ragbits [here](https://ragbits.deepsense.ai).
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+uv sync
+```
+
+2. Run docker compose:
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+3. Run the ingestion script:
+```bash
+uv run src/{{pkg_name}}/ingest.py
+```
+
+3. Run the main script:
+```bash
+uv run src/{{pkg_name}}/main.py
+```

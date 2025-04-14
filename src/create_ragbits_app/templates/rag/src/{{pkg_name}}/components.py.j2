@@ -1,0 +1,41 @@
+import logging
+
+from qdrant_client import AsyncQdrantClient
+from ragbits.core.embeddings import LiteLLMEmbedder
+from ragbits.core.llms import LiteLLM
+from ragbits.core.vector_stores.qdrant import QdrantVectorStore
+from ragbits.document_search import DocumentSearch
+from ragbits.document_search.documents.element import ImageElement
+from ragbits.document_search.ingestion.enrichers import ElementEnricherRouter, ImageElementEnricher
+from ragbits.document_search.retrieval.rephrasers import LLMQueryRephraser
+
+from {{pkg_name}}.config import config
+
+# disable logging from LiteLLM as ragbits already logs the necessary information
+litellm_logger = logging.getLogger('LiteLLM')
+litellm_logger.propagate = False
+
+
+def get_llm():
+    return LiteLLM(model_name=config.llm_model, use_structured_output=True, api_key=config.openai_api_key)
+
+def get_vector_store():
+    store_prefix = "{{project_name}}"
+    qdrant_client = AsyncQdrantClient(config.qdrant_host)
+    dense_embedder = LiteLLMEmbedder(model=config.embedding_model)
+
+    return QdrantVectorStore(client=qdrant_client, embedder=dense_embedder, index_name=store_prefix + "-dense")
+
+def get_document_search():
+    llm = get_llm()
+    vector_store = get_vector_store()
+
+    document_search = DocumentSearch(
+        vector_store=vector_store,
+        query_rephraser=LLMQueryRephraser(llm=llm), # Setup query rephrasing
+        enricher_router=ElementEnricherRouter({
+            ImageElement: ImageElementEnricher(llm=llm)  # Get image descriptions with multi-modal LLM
+        })
+    )
+
+    return document_search

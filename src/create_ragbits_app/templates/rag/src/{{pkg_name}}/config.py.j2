@@ -1,0 +1,18 @@
+from pathlib import Path
+
+from pydantic_settings import BaseSettings
+
+
+class AppConfig(BaseSettings):
+    qdrant_host: str = "http://localhost:6333"
+
+    llm_model: str = "gpt-4o-mini"
+    embedding_model: str = "text-embedding-3-small"
+
+    openai_api_key: str = ""
+
+    class Config:
+        env_file = Path(__file__).parent.parent.parent / ".env"
+
+
+config = AppConfig()

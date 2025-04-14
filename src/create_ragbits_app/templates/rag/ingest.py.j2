@@ -1,0 +1,23 @@
+import asyncio
+
+from ragbits.document_search.documents.sources import WebSource
+
+from ragbits_rag.components import get_document_search
+
+
+async def main():
+    document_search = get_document_search()
+
+    # You can ingest a document using one of ragbits built-in sources, such as web, s3, gcs, azure or git.
+    result = await document_search.ingest([
+        WebSource(url="https://www.ecdc.europa.eu/sites/default/files/documents/AER-Yellow-Fever-2019.pdf")
+    ])
+
+    print(f"Number of successfully parsed documents: {len(result.successful)}")
+
+    for doc in result.failed:
+        print(f"Failed to parse document: {doc.document_uri}")
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
