@@ -36,4 +36,4 @@ jobs:
         run: uv run ruff check .
 
       - name: Run mypy
-        run: uv run mypy . --exclude src/create_ragbits_app/templates/
+        run: uv run mypy . --exclude src/create_ragbits_app/templates/rag/src/\{\{pkg_name\}\}/__init__.py
