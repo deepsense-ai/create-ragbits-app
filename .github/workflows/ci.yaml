@@ -23,6 +23,12 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Initialize venv
+        run: uv venv
+
+      - name: Install pre-commit
+        run: uv pip install pre-commit
+
       - name: Run pre-commit
         run: uv run pre-commit run --all-files
 
