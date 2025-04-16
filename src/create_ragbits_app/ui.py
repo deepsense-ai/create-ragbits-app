@@ -1,9 +1,9 @@
+import textwrap
+from typing import Optional
+
+from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
-import textwrap
-
-from typing import Optional
-from pydantic import BaseModel, Field
 
 
 class AsciiArtCombiner:
@@ -16,8 +16,10 @@ class AsciiArtCombiner:
 
     class Config(BaseModel):
         """Configuration options for combining ASCII art"""
-        vertical_offset: int = Field(default=0,
-                                     description="Line number where the right graphic starts relative to the left")
+
+        vertical_offset: int = Field(
+            default=0, description="Line number where the right graphic starts relative to the left"
+        )
         horizontal_spacing: int = Field(default=2, description="Number of spaces between the two graphics")
 
     @staticmethod
@@ -77,22 +79,22 @@ console = Console()
 def display_logo(version: str) -> None:
     """Display the ragbits logo with a rabbit face in ASCII art."""
     rabbit_face = textwrap.dedent("""
-    [magenta bold]  __     __   
-    [magenta bold] /_/|   |\_\  
-    [magenta bold]  |U|___|U|   
-    [magenta bold]  |       |   
-    [magenta bold]  | ,   , |   
-    [magenta bold] (  = Y =  )  
-    [magenta bold]  |   `   |   
-    [magenta bold] /|       |\\ 
-    [magenta bold] \| |   | |/
+    [magenta bold]  __     __
+    [magenta bold] /_/|   |\\_\\
+    [magenta bold]  |U|___|U|
+    [magenta bold]  |       |
+    [magenta bold]  | ,   , |
+    [magenta bold] (  = Y =  )
+    [magenta bold]  |   `   |
+    [magenta bold] /|       |\\
+    [magenta bold] \\| |   | |/
     [magenta bold](_|_|___|_|_)
     [magenta bold]  '"'   '"'
     """)
 
     ragbits_title = textwrap.dedent(f"""
 [cyan bold]▗▄▄▖  ▗▄▖  ▗▄▄▖▗▄▄▖ ▗▄▄▄▖▗▄▄▄▖▗▄▄▖
-[cyan bold]▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌  █    █ ▐▌   
+[cyan bold]▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌  █    █ ▐▌
 [cyan bold]▐▛▀▚▖▐▛▀▜▌▐▌▝▜▌▐▛▀▚▖  █    █  ▝▀▚▖
 [cyan bold]▐▌ ▐▌▐▌ ▐▌▝▚▄▞▘▐▙▄▞▘▗▄█▄▖  █ ▗▄▄▞▘
 
