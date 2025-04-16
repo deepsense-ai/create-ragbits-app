@@ -22,7 +22,7 @@ repos:
       - id: check-types
         name: check types
         types_or: [python, jupyter]
-        entry: uv run mypy . --exclude src/create_ragbits_app/templates/rag/src/\{\{pkg_name\}\}/__init__.py
+        entry: uv run mypy .
         language: system
         always_run: false
         pass_filenames: false

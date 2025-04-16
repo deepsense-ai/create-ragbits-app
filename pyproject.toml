@@ -71,7 +71,7 @@ check_untyped_defs = true
 no_implicit_optional = true
 explicit_package_bases = true
 mypy_path = ["src"]
-exclude = ["scripts"]
+exclude = ["src/create_ragbits_app/templates/rag/src/{{pkg_name}}/__init__.py"]
 
 [[tool.mypy.overrides]]
 module = "create_ragbits_app.*"
