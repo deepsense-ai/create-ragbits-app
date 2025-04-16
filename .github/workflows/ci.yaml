@@ -27,7 +27,7 @@ jobs:
         run: uv venv
 
       - name: Install pre-commit
-        run: uv pip install pre-commit
+        run: uv pip install pre-commit ruff mypy
 
       - name: Run pre-commit
         run: uv run pre-commit run --all-files
