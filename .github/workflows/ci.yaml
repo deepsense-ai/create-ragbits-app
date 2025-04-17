@@ -2,9 +2,8 @@ name: CI
 
 on:
   push:
-    branches: main
+    branches: [main]
   pull_request:
-    branches: main
 
 jobs:
   lint:
@@ -21,19 +20,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
-      - name: Initialize venv
-        run: uv venv
+      - name: Cache pre-commit
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Install pre-commit
-        run: uv pip install pre-commit ruff mypy
+      - name: Run pre-commit checks
+        run: |
+          uv run pre-commit run --all-files --show-diff-on-failure --color always
 
-      - name: Run pre-commit
-        run: uv run pre-commit run --all-files
-
-      - name: Run ruff
-        run: uv run ruff check .
-
-      - name: Run mypy
-        run: uv run mypy .
+      - name: Validate package build
+        run: |
+          uv build --out-dir dist
