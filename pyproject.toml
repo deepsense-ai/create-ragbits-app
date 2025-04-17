@@ -1,7 +1,7 @@
 [project]
 name = "create-ragbits-app"
 version = "0.0.4"
-description = "Add your description here"
+description = "Set up a modern LLM app by running one command"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -13,9 +13,18 @@ dependencies = [
     "twine>=6.1.0",
 ]
 
-
 [project.scripts]
 create-ragbits-app = "create_ragbits_app.main:entrypoint"
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit==4.2.0",
+    "pytest==8.3.5",
+    "pytest-cov==5.0.0",
+    "pytest-asyncio==0.24.0",
+    "ruff==0.11.5",
+    "mypy==1.15.0",
+]
 
 [build-system]
 requires = ["hatchling"]
