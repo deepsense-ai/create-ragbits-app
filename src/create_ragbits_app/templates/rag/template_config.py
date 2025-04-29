@@ -48,7 +48,7 @@ class RagTemplateConfig(TemplateConfig):
         hybrid_search = context.get("hybrid_search")
 
         # Collect all ragbits extras
-        ragbits_extras = []  # Always include local
+        ragbits_extras = []
 
         if vector_store == "Qdrant":
             ragbits_extras.append("qdrant")
