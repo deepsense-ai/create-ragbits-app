@@ -42,16 +42,16 @@ The `template_config.py` file should define a `TemplateConfig` class that inheri
 
 ```python
 from create_ragbits_app.template_config_base import (
-    BaseTemplateConfig, 
-    TextQuestion, 
-    ListQuestion, 
+    BaseTemplateConfig,
+    TextQuestion,
+    ListQuestion,
     ConfirmQuestion
 )
 
 class TemplateConfig(TemplateConfig):
     name: str = "My Template Name"
     description: str = "Description of the template"
-    
+
     questions: List = [
         TextQuestion(
             name="variable_name",

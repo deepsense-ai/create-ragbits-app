@@ -11,12 +11,14 @@ The module works with template directories that contain:
 - Template files (*.j2): Jinja2 template files
 - Static files: Other files to be copied as-is
 """
+
 import importlib.util
 import os
 import pathlib
 import shutil
 import sys
-from typing import Dict, List
+
+import jinja2
 
 from create_ragbits_app.template_config_base import TemplateConfig
 from rich.console import Console
@@ -30,22 +32,18 @@ TEMPLATES_DIR = pathlib.Path(__file__).parent / "templates"
 console = Console()
 
 
-def get_available_templates() -> List[Dict]:
+def get_available_templates() -> list[dict]:
     """Get list of available templates from templates directory with their metadata."""
     if not TEMPLATES_DIR.exists():
         return []
-    
+
     templates = []
     for d in TEMPLATES_DIR.iterdir():
         if d.is_dir():
             # Get template config to extract name and description
             config = get_template_config(d.name)
-            templates.append({
-                'dir_name': d.name,
-                'name': config.name,
-                'description': config.description
-            })
-    
+            templates.append({"dir_name": d.name, "name": config.name, "description": config.description})
+
     return templates
 
 
@@ -53,37 +51,39 @@ def get_template_config(template_name: str) -> TemplateConfig:
     """Get template configuration if available."""
     config_path = TEMPLATES_DIR / template_name / "template_config.py"
     if not config_path.exists():
-        return {}
-    
+        return {}  # type: ignore[return-value]
+
     # Use importlib to safely load the module
     spec = importlib.util.spec_from_file_location("template_config", config_path)
     if spec is None or spec.loader is None:
-        return {}
-        
+        return {}  # type: ignore[return-value]
+
     module = importlib.util.module_from_spec(spec)
     sys.modules["template_config"] = module
-    
+
     try:
         spec.loader.exec_module(module)
         # Look for a 'config' variable which should be an instance of TemplateConfig
-        if hasattr(module, 'config'):
+        if hasattr(module, "config"):
             return module.config
+        return {}  # type: ignore[return-value]
     except Exception as e:
         print(f"Error loading template config: {e}")
-        return {}
+        return {}  # type: ignore[return-value]
 
-def prompt_template_questions(template_config: TemplateConfig) -> Dict:
+
+def prompt_template_questions(template_config: TemplateConfig) -> dict:
     """Prompt user for template-specific questions."""
     return {q.name: q.prompt() for q in template_config.questions}
 
 
-def create_project(template_name: str, project_path: str, context: Dict) -> None:
+def create_project(template_name: str, project_path: str, context: dict) -> None:
     """Create a new project from the selected template."""
     template_path = TEMPLATES_DIR / template_name
-    
+
     # Create project directory if it doesn't exist
     os.makedirs(project_path, exist_ok=True)
-    
+
     # Process all template files and directories
     with Progress(
         SpinnerColumn(),
