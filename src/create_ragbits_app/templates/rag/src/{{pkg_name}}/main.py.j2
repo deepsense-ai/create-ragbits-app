@@ -17,9 +17,8 @@ from {{pkg_name}}.components import get_llm, get_document_search
 
 
 class ChatApp(ChatInterface):
-
     """Chat interface for {{ project_name }} application."""
-    
+
     def __init__(self) -> None:
         self.llm = get_llm()
         self.document_search = get_document_search()
@@ -32,7 +31,7 @@ class ChatApp(ChatInterface):
     ) -> AsyncGenerator[ChatResponse, None]:
         # Search for relevant documents
         search_results = await self.document_search.search(message)
-        
+
         # Create prompt with context
         prompt = QAPrompt(QAPromptInput(
             question=message,
@@ -42,4 +41,3 @@ class ChatApp(ChatInterface):
         # Stream the response from the LLM
         async for chunk in self.llm.generate_streaming(prompt):
             yield self.create_text_response(chunk)
-

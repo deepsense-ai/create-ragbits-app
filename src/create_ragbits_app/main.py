@@ -43,11 +43,9 @@ async def run() -> None:
 
     # Let user select a template
     from inquirer.shortcuts import list_input, text
-    selected_template_str = list_input(
-        "Select a template to use (more to come soon!)",
-        choices=template_choices
-    )
-    
+
+    selected_template_str = list_input("Select a template to use (more to come soon!)", choices=template_choices)
+
     # Get the directory name from the selection
     selected_idx = template_choices.index(selected_template_str)
     selected_template = templates[selected_idx]["dir_name"]
