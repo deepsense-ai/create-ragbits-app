@@ -44,7 +44,7 @@ async def run():
     # Let user select a template
     from inquirer.shortcuts import list_input, text
     selected_template_str = list_input(
-        "Select a template to use",
+        "Select a template to use (more to come soon!)",
         choices=template_choices
     )
     

@@ -5,9 +5,9 @@ description = "Repository generated with ragbits"
 readme = "README.md"
 requires-python = ">={{ python_version }}"
 dependencies = [
-    "ragbits[qdrant]=={{ ragbits_version }}",
-    "pydantic-settings",
-    "unstructured[pdf]>=0.17.2",
+    {% for dep in dependencies %}
+    "{{ dep }}",
+    {% endfor %}
 ]
 
 [build-system]

@@ -4,6 +4,7 @@ Configuration for the RAG template.
 from create_ragbits_app.template_config_base import (
     TemplateConfig, 
     ListQuestion,
+    ConfirmQuestion,
 )
 from typing import List
 
@@ -15,7 +16,7 @@ class RagTemplateConfig(TemplateConfig):
     
     questions: List = [
         ListQuestion(
-            name="vector_db", 
+            name="vector_store", 
             message="What Vector database you want to use?",
             choices=[
                 "Qdrant",
@@ -26,11 +27,53 @@ class RagTemplateConfig(TemplateConfig):
             name="parser", 
             message="What parser you want to use parse documents?",
             choices=[
-                "unstructured",
                 "docling",
+                "unstructured",
             ]
         ),
+        ConfirmQuestion(
+            name="hybrid_search",
+            message="Do you want to use hybrid search with sparse embeddings?",
+            default=True
+        ),
+        ConfirmQuestion(
+            name="image_description",
+            message="Do you want to describe images with multi-modal LLM?",
+            default=True
+        ),
     ]
+
+    def build_context(self, context: dict) -> dict:
+        """Build additional context based on the answers."""
+        vector_store = context.get("vector_store")
+        parser = context.get("parser")
+        hybrid_search = context.get("hybrid_search")
+        image_description = context.get("image_description")
+        
+        # Collect all ragbits extras
+        ragbits_extras = []  # Always include local
+        
+        if vector_store == "Qdrant":
+            ragbits_extras.append("qdrant")
+        elif vector_store == "Postgresql with pgvector":
+            ragbits_extras.append("pgvector")
+            
+        if parser == "docling":
+            ragbits_extras.append("docling")
+            
+        if hybrid_search:
+            ragbits_extras.append("fastembed")
+            
+        # Build dependencies list
+        dependencies = [
+            f"ragbits[{','.join(ragbits_extras)}]=={context.get('ragbits_version')}",
+            "pydantic-settings",
+        ]
+            
+        if parser == "unstructured":
+            dependencies.append("unstructured[pdf]>=0.17.2")
+            
+        return {"dependencies": dependencies}
 
 # Create instance of the config to be imported
 config = RagTemplateConfig()

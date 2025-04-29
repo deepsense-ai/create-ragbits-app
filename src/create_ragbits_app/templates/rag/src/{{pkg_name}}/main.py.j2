@@ -1,43 +1,45 @@
 """
 Main entry point for the {{ project_name }} application.
+To run this file, use the following command:
+
+```bash
+ragbits api run {{pkg_name}}.main:ChatApp
+```
 """
-import asyncio
+from collections.abc import AsyncGenerator
 
 from pydantic import BaseModel
 from ragbits.core.prompt import Prompt
-
+from ragbits.chat.interface import ChatInterface
+from ragbits.chat.interface.types import ChatResponse, Message
+from {{pkg_name}}.prompt_qa import QAPrompt, QAPromptInput
 from {{pkg_name}}.components import get_llm, get_document_search
 
 
-class QAPromptInput(BaseModel):
-    question: str
-    contexts: list[str]
+class ChatApp(ChatInterface):
 
-class QAPrompt(Prompt[QAPromptInput, str]):
-    system_prompt = """
-    Your task is to answer user questions based on context.
-    If the question is not related to the context, say that the question is not related.
+    """Chat interface for {{ project_name }} application."""
     
-    <context>
-    {% for context in contexts %}
-    {{context}}
-    {% endfor %}
-    </context>
-    """
+    def __init__(self) -> None:
+        self.llm = get_llm()
+        self.document_search = get_document_search()
 
-    user_prompt = "{{ question }}"
+    async def chat(
+        self,
+        message: str,
+        history: list[Message] | None = None,
+        context: dict | None = None,
+    ) -> AsyncGenerator[ChatResponse, None]:
+        # Search for relevant documents
+        search_results = await self.document_search.search(message)
+        
+        # Create prompt with context
+        prompt = QAPrompt(QAPromptInput(
+            question=message,
+            contexts=[ctx.text_representation for ctx in search_results]
+        ))
 
-async def reply(question: str):
-    llm = get_llm()
-    document_search = get_document_search()
+        # Stream the response from the LLM
+        async for chunk in self.llm.generate_streaming(prompt):
+            yield self.create_text_response(chunk)
 
-    context = await document_search.search(question)
-
-    async for chunk in llm.generate_streaming(
-        QAPrompt(QAPromptInput(question=question, contexts=[ctx.text_representation for ctx in context]))
-    ):
-        print(chunk, end="")
-
-
-if __name__ == '__main__':
-    asyncio.run(reply("In what countries in 2018 there was signs of yellow fever?"))

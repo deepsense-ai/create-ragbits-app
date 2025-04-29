@@ -1,13 +1,33 @@
 import logging
 
+{% if vector_store == "Qdrant" %}
 from qdrant_client import AsyncQdrantClient
-from ragbits.core.embeddings import LiteLLMEmbedder
-from ragbits.core.llms import LiteLLM
 from ragbits.core.vector_stores.qdrant import QdrantVectorStore
+{% elif vector_store == "Postgresql with pgvector" %}
+from ragbits.core.vector_stores.pgvector import PgvectorVectorStore
+import asyncpg
+{% endif %}
+
+from ragbits.core.embeddings.dense import LiteLLMEmbedder
+{% if hybrid_search %}
+from ragbits.core.embeddings.sparse.fastembed import FastEmbedSparseEmbedder
+from ragbits.core.vector_stores.hybrid import HybridSearchVectorStore
+{% endif %}
+from ragbits.core.llms import LiteLLM
 from ragbits.document_search import DocumentSearch
+{% if image_description %}
 from ragbits.document_search.documents.element import ImageElement
 from ragbits.document_search.ingestion.enrichers import ElementEnricherRouter, ImageElementEnricher
+{% endif %}
+from ragbits.document_search.ingestion.parsers import DocumentParserRouter
+from ragbits.document_search.documents.document import DocumentType
 from ragbits.document_search.retrieval.rephrasers import LLMQueryRephraser
+
+{% if parser == "unstructured" %}
+from ragbits.document_search.ingestion.parsers.unstructured import UnstructuredDocumentParser
+{% elif parser == "docling" %}
+from ragbits.document_search.ingestion.parsers.docling import DoclingDocumentParser
+{% endif %}
 
 from {{pkg_name}}.config import config
 
@@ -21,21 +41,62 @@ def get_llm():
 
 def get_vector_store():
     store_prefix = "{{project_name}}"
-    qdrant_client = AsyncQdrantClient(config.qdrant_host)
-    dense_embedder = LiteLLMEmbedder(model=config.embedding_model)
+    dense_embedder = LiteLLMEmbedder(model_name=config.embedding_model)
 
-    return QdrantVectorStore(client=qdrant_client, embedder=dense_embedder, index_name=store_prefix + "-dense")
+    {% if vector_store == "Qdrant" %}
+    qdrant_client = AsyncQdrantClient(config.qdrant_host)
+    dense_store = QdrantVectorStore(client=qdrant_client, embedder=dense_embedder, index_name=store_prefix + "-dense")
+    {% if hybrid_search %}
+    sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
+    sparse_store = QdrantVectorStore(client=qdrant_client, embedder=sparse_embedder, index_name=store_prefix + "-sparse")
+    return HybridSearchVectorStore(dense_store, sparse_store)
+    {% else %}
+    return dense_store
+    {% endif %}
+    {% elif vector_store == "Postgresql with pgvector" %}
+    pool = await asyncpg.create_pool(config.postgres_dsn)
+    dense_store = PgvectorVectorStore(pool=pool, embedder=dense_embedder, table_name=store_prefix + "-dense")
+    {% if hybrid_search %}
+    sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
+    sparse_store = PgvectorVectorStore(pool=pool, embedder=sparse_embedder, table_name=store_prefix + "-sparse")
+    return HybridSearchVectorStore(dense_store, sparse_store)
+    {% else %}
+    return dense_store
+    {% endif %}
+    {% endif %}
 
 def get_document_search():
     llm = get_llm()
     vector_store = get_vector_store()
 
+    # Configure document parsers
+    {% if parser == "unstructured" %}
+    parser_router = DocumentParserRouter({
+        DocumentType.PDF: UnstructuredDocumentParser(),
+        DocumentType.DOCX: UnstructuredDocumentParser(),
+        DocumentType.HTML: UnstructuredDocumentParser(),
+        DocumentType.TXT: UnstructuredDocumentParser(),
+    })
+    {% elif parser == "docling" %}
+    parser_router = DocumentParserRouter({
+        DocumentType.PDF: DoclingDocumentParser(),
+        DocumentType.DOCX: DoclingDocumentParser(),
+        DocumentType.HTML: DoclingDocumentParser(),
+        DocumentType.TXT: DoclingDocumentParser(),
+    })
+    {% endif %}
+
     document_search = DocumentSearch(
         vector_store=vector_store,
         query_rephraser=LLMQueryRephraser(llm=llm), # Setup query rephrasing
+        parser_router=parser_router,  # Add document parser configuration
+        {% if image_description %}
         enricher_router=ElementEnricherRouter({
             ImageElement: ImageElementEnricher(llm=llm)  # Get image descriptions with multi-modal LLM
-        })
+        }),
+        {% else %}
+        enricher_router=None,
+        {% endif %}
     )
 
     return document_search
