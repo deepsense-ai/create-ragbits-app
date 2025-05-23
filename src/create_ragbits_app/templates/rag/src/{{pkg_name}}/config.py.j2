@@ -4,12 +4,17 @@ from pydantic_settings import BaseSettings
 
 
 class AppConfig(BaseSettings):
+    # Vector store configuration
+    {%- if vector_store == "Qdrant" %}
     qdrant_host: str = "http://localhost:6333"
+    {%- elif vector_store == "Postgresql with pgvector" %}
+    postgres_dsn: str = "postgresql://postgres:postgres@localhost:5432/postgres"
+    {%- endif %}
 
-    llm_model: str = "gpt-4o-mini"
-    embedding_model: str = "text-embedding-3-small"
-
-    openai_api_key: str = ""
+    # LLM configuration
+    llm_model: str = "gpt-4.1-mini"
+    embedding_model: str = "text-embedding-3-large"
+    openai_api_key: str
 
     class Config:
         env_file = Path(__file__).parent.parent.parent / ".env"
