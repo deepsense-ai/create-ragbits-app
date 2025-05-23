@@ -8,7 +8,7 @@ async def main():
 
     # You can ingest a document using one of ragbits built-in sources, such as web, s3, gcs, azure or git.
     result = await document_search.ingest(
-        "web://https://www.ecdc.europa.eu/sites/default/files/documents/AER-Yellow-Fever-2019.pdf"
+        "web://https://arxiv.org/pdf/2310.06825"
     )
 
     print(f"Number of successfully parsed documents: {len(result.successful)}")

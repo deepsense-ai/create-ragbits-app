@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  {% if vector_store == "Qdrant" %}
+  {%- if vector_store == "Qdrant" %}
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant-db
@@ -11,7 +11,7 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
-  {% elif vector_store == "Postgresql with pgvector" %}
+  {%- elif vector_store == "Postgresql with pgvector" %}
   postgres:
     image: ankane/pgvector:latest
     container_name: postgres-db
@@ -24,11 +24,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
-  {% endif %}
+  {%- endif %}
 
 volumes:
-  {% if vector_store == "Qdrant" %}
+  {%- if vector_store == "Qdrant" %}
   qdrant_data:
-  {% elif vector_store == "Postgresql with pgvector" %}
+  {%- elif vector_store == "Postgresql with pgvector" %}
   postgres_data:
-  {% endif %}
+  {%- endif %}

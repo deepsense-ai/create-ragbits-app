@@ -5,9 +5,9 @@ description = "Repository generated with ragbits"
 readme = "README.md"
 requires-python = ">={{ python_version }}"
 dependencies = [
-    {% for dep in dependencies %}
+    {%- for dep in dependencies %}
     "{{ dep }}",
-    {% endfor %}
+    {%- endfor %}
 ]
 
 [build-system]
