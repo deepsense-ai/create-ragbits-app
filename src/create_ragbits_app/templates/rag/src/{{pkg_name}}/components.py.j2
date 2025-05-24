@@ -46,21 +46,25 @@ def get_vector_store():
     {%- if vector_store == "Qdrant" %}
     qdrant_client = AsyncQdrantClient(config.qdrant_host)
     dense_store = QdrantVectorStore(client=qdrant_client, embedder=dense_embedder, index_name=store_prefix + "-dense")
+    
     {%- if hybrid_search %}
     sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
     sparse_store = QdrantVectorStore(client=qdrant_client, embedder=sparse_embedder, index_name=store_prefix + "-sparse")
     return HybridSearchVectorStore(dense_store, sparse_store)
     {%- else %}
+    
     return dense_store
     {%- endif %}
     {% elif vector_store == "Postgresql with pgvector" %}
     pool = await asyncpg.create_pool(config.postgres_dsn)
     dense_store = PgvectorVectorStore(pool=pool, embedder=dense_embedder, table_name=store_prefix + "-dense")
+    
     {%- if hybrid_search %}
     sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
     sparse_store = PgvectorVectorStore(pool=pool, embedder=sparse_embedder, table_name=store_prefix + "-sparse")
     return HybridSearchVectorStore(dense_store, sparse_store)
     {%- else %}
+
     return dense_store
     {%- endif %}
     {%- endif %}
