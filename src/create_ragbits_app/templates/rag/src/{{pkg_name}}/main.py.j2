@@ -14,6 +14,12 @@ from ragbits.chat.interface import ChatInterface
 from ragbits.chat.interface.types import ChatResponse, Message
 from {{pkg_name}}.prompt_qa import QAPrompt, QAPromptInput
 from {{pkg_name}}.components import get_llm, get_document_search
+{%- if observability %}
+from {{pkg_name}}.observability import setup_observability
+
+# Initialize observability
+setup_observability()
+{%- endif %}
 
 
 class ChatApp(ChatInterface):

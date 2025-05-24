@@ -83,6 +83,24 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
     # Create project directory if it doesn't exist
     os.makedirs(project_path, exist_ok=True)
 
+    # Get template configuration to check for conditional inclusion logic
+    template_config = get_template_config(template_name)
+    conditional_directories = template_config.get_conditional_directories()
+
+    def should_include_path(path: pathlib.Path) -> bool:
+        """Check if a path should be included based on conditional directories and file inclusion logic."""
+        rel_path = path.relative_to(template_path)
+
+        # Check conditional directories
+        for dir_name, context_var in conditional_directories.items():
+            if str(rel_path).startswith(dir_name) or str(rel_path) == dir_name:
+                # If this path is under a conditional directory, check the context variable
+                if not context.get(context_var, False):
+                    return False
+
+        # Check template config's custom file inclusion logic
+        return template_config.should_include_file(rel_path, context)
+
     # Process all template files and directories
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
         progress.add_task("[cyan]Creating project structure...", total=None)
@@ -90,6 +108,10 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
         for item in template_path.glob("**/*"):
             if item.name == "template_config.py":
                 continue  # Skip template config file
+
+            # Check if this path should be included
+            if not should_include_path(item):
+                continue
 
             # Get relative path from template root
             rel_path = str(item.relative_to(template_path))
