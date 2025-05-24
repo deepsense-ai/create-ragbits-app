@@ -2,6 +2,8 @@
 Configuration for the RAG template.
 """
 
+import pathlib
+
 from create_ragbits_app.template_config_base import (
     ListQuestion,
     MultiSelectQuestion,
@@ -105,6 +107,20 @@ class RagTemplateConfig(TemplateConfig):
             "image_description": image_description,
             "observability": observability,
         }
+
+    def get_conditional_directories(self) -> dict[str, str]:
+        """Define directories that should be conditionally included."""
+        return {
+            "observability": "observability",
+        }
+
+    def should_include_file(self, file_path: pathlib.Path, context: dict) -> bool:
+        """Custom file inclusion logic for RAG template."""
+        # Exclude observability.py.j2 when observability is disabled
+        if str(file_path).endswith("observability.py.j2") and not context.get("observability", False):
+            return False
+
+        return True
 
 
 # Create instance of the config to be imported

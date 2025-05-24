@@ -3,7 +3,8 @@ Base classes for template configuration.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeVar
+from typing import Any, TypeVar
+import pathlib
 
 T = TypeVar("T", str, bool)
 
@@ -17,7 +18,7 @@ class Question(ABC):
         """Type of the question"""
         pass
 
-    def __init__(self, name: str, message: str, default: Optional[str | bool | list[str]] = None):
+    def __init__(self, name: str, message: str, default: str | bool | list[str] | None = None):
         self.name = name
         self.message = message
         self.default = default
@@ -48,7 +49,7 @@ class ListQuestion(Question):
 
     question_type: str = "list"
 
-    def __init__(self, name: str, message: str, choices: list[str], default: Optional[str] = None):
+    def __init__(self, name: str, message: str, choices: list[str], default: str | None = None):
         super().__init__(name, message, default)
         self.choices = choices
 
@@ -75,7 +76,7 @@ class MultiSelectQuestion(Question):
         name: str,
         message: str,
         choices: list[str | dict[str, str]],
-        default: Optional[list[str]] = None,
+        default: list[str] | None = None,
     ):
         super().__init__(name, message, default)
         self.choices = choices
@@ -108,7 +109,7 @@ class MultiSelectQuestion(Question):
         """Convert default values to display names."""
         if not self.default or not isinstance(self.default, list):
             return []
-        
+
         # Reverse mapping: value -> display_name
         value_to_display = {v: k for k, v in self._choice_map.items()}
         return [value_to_display.get(value, value) for value in self.default]
@@ -168,5 +169,31 @@ class TemplateConfig:
 
         Returns:
             Dictionary containing additional context variables
+        """
+        return {}
+
+    def should_include_file(self, file_path: pathlib.Path, context: dict[str, Any]) -> bool:  # noqa: PLR6301
+        """
+        Determine whether a file should be included in the generated project.
+        Override this method in template configs to add custom file filtering logic.
+
+        Args:
+            file_path: Path object representing the file relative to the template root
+            context: Dictionary containing the current context including answers
+                    from questions and additional context
+
+        Returns:
+            Boolean indicating whether the file should be included
+        """
+        return True
+
+    def get_conditional_directories(self) -> dict[str, str]:  # noqa: PLR6301
+        """
+        Define directories that should be conditionally included based on context variables.
+
+        Returns:
+            Dictionary mapping directory paths to context variable names that control inclusion.
+            For example: {"observability": "observability"} means the observability/ directory
+            will only be included if context["observability"] is truthy.
         """
         return {}
