@@ -3,8 +3,8 @@ Configuration for the RAG template.
 """
 
 from create_ragbits_app.template_config_base import (
-    ConfirmQuestion,
     ListQuestion,
+    MultiSelectQuestion,
     Question,
     TemplateConfig,
 )
@@ -33,11 +33,20 @@ class RagTemplateConfig(TemplateConfig):
                 "unstructured",
             ],
         ),
-        ConfirmQuestion(
-            name="hybrid_search", message="Do you want to use hybrid search with sparse embeddings?", default=True
-        ),
-        ConfirmQuestion(
-            name="image_description", message="Do you want to describe images with multi-modal LLM?", default=True
+        MultiSelectQuestion(
+            name="additional_features",
+            message="Select additional features you want to include:",
+            choices=[
+                {
+                    "display_name": "Hybrid search with sparse embeddings",
+                    "value": "hybrid_search",
+                },
+                {
+                    "display_name": "Image description with multi-modal LLM",
+                    "value": "image_description",
+                },
+            ],
+            default=["hybrid_search", "image_description"],
         ),
     ]
 
@@ -45,7 +54,11 @@ class RagTemplateConfig(TemplateConfig):
         """Build additional context based on the answers."""
         vector_store = context.get("vector_store")
         parser = context.get("parser")
-        hybrid_search = context.get("hybrid_search")
+        additional_features = context.get("additional_features", [])
+
+        # Check for specific features
+        hybrid_search = "hybrid_search" in additional_features
+        image_description = "image_description" in additional_features
 
         # Collect all ragbits extras
         ragbits_extras = []
@@ -70,7 +83,11 @@ class RagTemplateConfig(TemplateConfig):
         if parser == "unstructured":
             dependencies.append("unstructured[pdf]>=0.17.2")
 
-        return {"dependencies": dependencies}
+        return {
+            "dependencies": dependencies,
+            "hybrid_search": hybrid_search,
+            "image_description": image_description,
+        }
 
 
 # Create instance of the config to be imported

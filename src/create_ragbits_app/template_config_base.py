@@ -17,7 +17,7 @@ class Question(ABC):
         """Type of the question"""
         pass
 
-    def __init__(self, name: str, message: str, default: Optional[str | bool] = None):
+    def __init__(self, name: str, message: str, default: Optional[str | bool | list[str]] = None):
         self.name = name
         self.message = message
         self.default = default
@@ -26,7 +26,7 @@ class Question(ABC):
         """Convert question properties to a dictionary representation."""
         return {"name": self.name, "message": self.message, "default": self.default, "type": self.question_type}
 
-    def prompt(self) -> str | bool:
+    def prompt(self) -> str | bool | list[str]:
         """Base method to prompt for and return an answer"""
         raise NotImplementedError("Subclasses must implement prompt()")
 
@@ -63,6 +63,73 @@ class ListQuestion(Question):
         from inquirer.shortcuts import list_input
 
         return list_input(self.message, choices=self.choices, default=self.default)
+
+
+class MultiSelectQuestion(Question):
+    """Multi-select checkbox question"""
+
+    question_type: str = "checkbox"
+
+    def __init__(
+        self,
+        name: str,
+        message: str,
+        choices: list[str | dict[str, str]],
+        default: Optional[list[str]] = None,
+    ):
+        super().__init__(name, message, default)
+        self.choices = choices
+        self._choice_map = self._build_choice_map()
+
+    def _build_choice_map(self) -> dict[str, str]:
+        """Build a mapping from display names to values."""
+        choice_map = {}
+        for choice in self.choices:
+            if isinstance(choice, dict):
+                display_name = choice["display_name"]
+                value = choice["value"]
+                choice_map[display_name] = value
+            else:
+                # If it's just a string, use it as both display name and value
+                choice_map[choice] = choice
+        return choice_map
+
+    def _get_display_choices(self) -> list[str]:
+        """Get the list of display names for the choices."""
+        display_choices = []
+        for choice in self.choices:
+            if isinstance(choice, dict):
+                display_choices.append(choice["display_name"])
+            else:
+                display_choices.append(choice)
+        return display_choices
+
+    def _get_default_display_names(self) -> list[str]:
+        """Convert default values to display names."""
+        if not self.default or not isinstance(self.default, list):
+            return []
+        
+        # Reverse mapping: value -> display_name
+        value_to_display = {v: k for k, v in self._choice_map.items()}
+        return [value_to_display.get(value, value) for value in self.default]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert question properties to a dictionary including choices."""
+        result = super().to_dict()
+        result["choices"] = self._get_display_choices()
+        return result
+
+    def prompt(self) -> list[str]:
+        """Display a multi-select checkbox prompt and return the user's selections as values."""
+        from inquirer.shortcuts import checkbox
+
+        display_choices = self._get_display_choices()
+        default_display_names = self._get_default_display_names()
+
+        selected_display_names = checkbox(self.message, choices=display_choices, default=default_display_names)
+
+        # Convert selected display names back to values
+        return [self._choice_map[display_name] for display_name in selected_display_names]
 
 
 class ConfirmQuestion(Question):
