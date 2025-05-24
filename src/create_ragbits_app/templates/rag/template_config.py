@@ -45,6 +45,10 @@ class RagTemplateConfig(TemplateConfig):
                     "display_name": "Image description with multi-modal LLM",
                     "value": "image_description",
                 },
+                {
+                    "display_name": "Observability stack with Grafana, Tempo, and OpenTelemetry",
+                    "value": "observability",
+                },
             ],
             default=["hybrid_search", "image_description"],
         ),
@@ -59,6 +63,7 @@ class RagTemplateConfig(TemplateConfig):
         # Check for specific features
         hybrid_search = "hybrid_search" in additional_features
         image_description = "image_description" in additional_features
+        observability = "observability" in additional_features
 
         # Collect all ragbits extras
         ragbits_extras = []
@@ -83,10 +88,22 @@ class RagTemplateConfig(TemplateConfig):
         if parser == "unstructured":
             dependencies.append("unstructured[pdf]>=0.17.2")
 
+        # Add observability dependencies
+        if observability:
+            dependencies.extend(
+                [
+                    "opentelemetry-api",
+                    "opentelemetry-sdk",
+                    "opentelemetry-exporter-otlp",
+                    "opentelemetry-instrumentation",
+                ]
+            )
+
         return {
             "dependencies": dependencies,
             "hybrid_search": hybrid_search,
             "image_description": image_description,
+            "observability": observability,
         }
 
 
