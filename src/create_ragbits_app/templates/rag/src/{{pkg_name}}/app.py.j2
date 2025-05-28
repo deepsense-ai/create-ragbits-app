@@ -1,18 +1,8 @@
-"""
-Main entry point for the {{ project_name }} application.
-To run this file, use the following command:
-
-```bash
-ragbits api run {{pkg_name}}.main:ChatApp
-```
-"""
 from collections.abc import AsyncGenerator
 
-from pydantic import BaseModel
-from ragbits.core.prompt import Prompt
 from ragbits.chat.interface import ChatInterface
 from ragbits.chat.interface.types import ChatResponse, Message
-from {{pkg_name}}.prompt_qa import QAPrompt, QAPromptInput
+from {{pkg_name}}.prompts import QAPrompt, QAPromptInput
 from {{pkg_name}}.components import get_llm, get_document_search
 
 
