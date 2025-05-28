@@ -19,3 +19,6 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/{{pkg_name}}"]
+
+[tool.ragbits.core.component_preference_factories]
+document_search = "{{pkg_name}}.components:get_document_search"
