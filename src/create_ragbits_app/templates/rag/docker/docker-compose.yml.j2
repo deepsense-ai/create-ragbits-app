@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
   {%- elif vector_store == "Postgresql with pgvector" %}
   postgres:
-    image: ankane/pgvector:latest
+    image: pgvector/pgvector:0.8.0-pg17
     container_name: postgres-db
     ports:
       - "5432:5432"

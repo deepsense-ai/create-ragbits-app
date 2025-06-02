@@ -25,9 +25,9 @@ setup_observability()
 class ChatApp(ChatInterface):
     """Chat interface for {{ project_name }} application."""
 
-    def __init__(self) -> None:
+    async def setup(self) -> None:
         self.llm = get_llm()
-        self.document_search = get_document_search()
+        self.document_search = await get_document_search()
 
     async def chat(
         self,
