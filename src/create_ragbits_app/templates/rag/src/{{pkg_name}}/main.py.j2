@@ -14,14 +14,20 @@ from ragbits.chat.interface import ChatInterface
 from ragbits.chat.interface.types import ChatResponse, Message
 from {{pkg_name}}.prompt_qa import QAPrompt, QAPromptInput
 from {{pkg_name}}.components import get_llm, get_document_search
+{%- if observability %}
+from {{pkg_name}}.observability import setup_observability
+
+# Initialize observability
+setup_observability()
+{%- endif %}
 
 
 class ChatApp(ChatInterface):
     """Chat interface for {{ project_name }} application."""
 
-    def __init__(self) -> None:
+    async def setup(self) -> None:
         self.llm = get_llm()
-        self.document_search = get_document_search()
+        self.document_search = await get_document_search()
 
     async def chat(
         self,

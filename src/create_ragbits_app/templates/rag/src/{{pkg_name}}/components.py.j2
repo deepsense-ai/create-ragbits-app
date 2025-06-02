@@ -4,7 +4,7 @@ import logging
 from qdrant_client import AsyncQdrantClient
 from ragbits.core.vector_stores.qdrant import QdrantVectorStore
 {%- elif vector_store == "Postgresql with pgvector" %}
-from ragbits.core.vector_stores.pgvector import PgvectorVectorStore
+from ragbits.core.vector_stores.pgvector import PgVectorStore
 import asyncpg
 {%- endif %}
 
@@ -39,35 +39,40 @@ litellm_logger.propagate = False
 def get_llm():
     return LiteLLM(model_name=config.llm_model, use_structured_output=True, api_key=config.openai_api_key)
 
-def get_vector_store():
+async def get_vector_store():
     store_prefix = "{{project_name}}"
     dense_embedder = LiteLLMEmbedder(model_name=config.embedding_model)
 
     {%- if vector_store == "Qdrant" %}
     qdrant_client = AsyncQdrantClient(config.qdrant_host)
     dense_store = QdrantVectorStore(client=qdrant_client, embedder=dense_embedder, index_name=store_prefix + "-dense")
+
     {%- if hybrid_search %}
-    sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
+    sparse_embedder = FastEmbedSparseEmbedder(model_name="prithivida/Splade_PP_en_v1")
     sparse_store = QdrantVectorStore(client=qdrant_client, embedder=sparse_embedder, index_name=store_prefix + "-sparse")
     return HybridSearchVectorStore(dense_store, sparse_store)
     {%- else %}
+
     return dense_store
     {%- endif %}
     {% elif vector_store == "Postgresql with pgvector" %}
+
     pool = await asyncpg.create_pool(config.postgres_dsn)
-    dense_store = PgvectorVectorStore(pool=pool, embedder=dense_embedder, table_name=store_prefix + "-dense")
+    dense_store = PgVectorStore(client=pool, embedder=dense_embedder, table_name=store_prefix + "_dense")
+
     {%- if hybrid_search %}
-    sparse_embedder = FastEmbedSparseEmbedder(model_name="Qdrant/bm25")
-    sparse_store = PgvectorVectorStore(pool=pool, embedder=sparse_embedder, table_name=store_prefix + "-sparse")
+    sparse_embedder = FastEmbedSparseEmbedder(model_name="prithivida/Splade_PP_en_v1")
+    sparse_store = PgVectorStore(client=pool, embedder=sparse_embedder, table_name=store_prefix + "_sparse")
     return HybridSearchVectorStore(dense_store, sparse_store)
     {%- else %}
+
     return dense_store
     {%- endif %}
     {%- endif %}
 
-def get_document_search():
+async def get_document_search():
     llm = get_llm()
-    vector_store = get_vector_store()
+    vector_store = await get_vector_store()
 
     # Configure document parsers
     {%- if parser == "unstructured" %}
