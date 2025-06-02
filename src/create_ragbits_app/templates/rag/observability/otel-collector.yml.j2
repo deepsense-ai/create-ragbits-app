@@ -20,11 +20,11 @@ exporters:
     endpoint: tempo:4317
     tls:
       insecure: true
-  
+
   # Metrics
   prometheus:
     endpoint: "0.0.0.0:8889"
-    
+
   # Logs (if needed)
   debug:
     verbosity: detailed
@@ -50,4 +50,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [resource, batch]
-      exporters: [debug] 
+      exporters: [debug]
