@@ -115,7 +115,6 @@ select = [
 ]
 extend-select = [
     "RUF022",   # unsorted-dunder-all
-    "PLR6301",  # no-self-use
 ]
 ignore = [
     "B024",
@@ -135,6 +134,9 @@ ignore = [
     "ANN102",
     "ANN204",
     "PLR0913",
+    "PLR6301",
+    "PLR0915",
+    "SIM103",
 ]
 
 [tool.ruff.lint.pydocstyle]

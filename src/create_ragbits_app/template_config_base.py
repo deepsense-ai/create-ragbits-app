@@ -2,9 +2,9 @@
 Base classes for template configuration.
 """
 
+import pathlib
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
-import pathlib
 
 T = TypeVar("T", str, bool)
 

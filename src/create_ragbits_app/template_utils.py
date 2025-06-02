@@ -93,7 +93,7 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
 
         # Check conditional directories
         for dir_name, context_var in conditional_directories.items():
-            if str(rel_path).startswith(dir_name) or str(rel_path) == dir_name:
+            if str(rel_path).startswith(dir_name) or str(rel_path) == dir_name:  # noqa: SIM102
                 # If this path is under a conditional directory, check the context variable
                 if not context.get(context_var, False):
                     return False
