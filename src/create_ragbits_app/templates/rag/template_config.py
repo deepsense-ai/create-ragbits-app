@@ -75,8 +75,8 @@ class RagTemplateConfig(TemplateConfig):
         elif vector_store == "Postgresql with pgvector":
             ragbits_extras.append("pgvector")
 
-        if parser == "docling":
-            ragbits_extras.append("docling")
+        if parser == "unstructured":
+            ragbits_extras.append("unstructured")
 
         if hybrid_search:
             ragbits_extras.append("fastembed")
