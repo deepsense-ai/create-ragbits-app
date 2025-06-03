@@ -1,6 +1,6 @@
 [project]
 name = "create-ragbits-app"
-version = "0.0.7"
+version = "0.0.8"
 description = "Set up a modern LLM app by running one command"
 readme = "README.md"
 requires-python = ">=3.11"
