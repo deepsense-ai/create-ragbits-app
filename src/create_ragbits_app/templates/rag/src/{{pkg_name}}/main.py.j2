@@ -11,7 +11,8 @@ from collections.abc import AsyncGenerator
 from pydantic import BaseModel
 from ragbits.core.prompt import Prompt
 from ragbits.chat.interface import ChatInterface
-from ragbits.chat.interface.types import ChatResponse, Message
+from ragbits.chat.interface.types import ChatResponse, ChatContext
+from ragbits.core.prompt.base import ChatFormat
 from {{pkg_name}}.prompt_qa import QAPrompt, QAPromptInput
 from {{pkg_name}}.components import get_llm, get_document_search
 {%- if observability %}
@@ -32,8 +33,8 @@ class ChatApp(ChatInterface):
     async def chat(
         self,
         message: str,
-        history: list[Message] | None = None,
-        context: dict | None = None,
+        history: ChatFormat| None = None,
+        context: ChatContext | None = None,
     ) -> AsyncGenerator[ChatResponse, None]:
         # Search for relevant documents
         search_results = await self.document_search.search(message)

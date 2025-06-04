@@ -303,7 +303,7 @@ toml = [
 
 [[package]]
 name = "create-ragbits-app"
-version = "0.0.6"
+version = "0.0.9"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
