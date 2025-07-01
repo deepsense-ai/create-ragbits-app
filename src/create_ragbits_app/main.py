@@ -12,6 +12,7 @@ from create_ragbits_app.template_utils import (
     prompt_template_questions,
 )
 from create_ragbits_app.ui import display_logo
+from create_ragbits_app.ui_generator import generate_ui
 
 FILTERS["python_safe"] = lambda value: value.replace("-", "_")
 
@@ -25,6 +26,36 @@ async def get_latest_ragbits_version() -> str:
             return response_json["info"]["version"]
     except TimeoutError:
         return "0.10.0"
+
+
+def prompt_ui_options() -> dict:
+    """Prompt user for UI generation options."""
+    from inquirer.shortcuts import list_input, text
+
+    ui_choice = list_input(
+        "How would you like to handle the UI?",
+        choices=[
+            "Default - Use hosted UI on localhost:8000 (no changes can be made)",
+            "Copy UI from ragbits source code to UI folder (you can modify components)",
+            "Create empty UI project - you can create your own frontend",
+        ],
+    )
+
+    ui_options = {
+        "ui_type": "default" if "Default" in ui_choice else "copy" if "Copy" in ui_choice else "create",
+    }
+
+    if ui_options["ui_type"] == "create":
+        framework_choice = list_input(
+            "What framework would you like to use for your UI project?",
+            choices=["Vanilla TypeScript", "React"],
+        )
+        ui_options["framework"] = "vanilla" if "Vanilla" in framework_choice else "react"
+
+        # Ask for UI project name
+        ui_options["ui_project_name"] = text("UI project name", default="ui")
+
+    return ui_options
 
 
 async def run() -> None:
@@ -59,6 +90,9 @@ async def run() -> None:
         print(f"Directory '{project_name}' already exists and is not empty. Project creation aborted.")
         return
 
+    # Get UI options
+    ui_options = prompt_ui_options()
+
     # Get template config and prompt for questions
     template_config = get_template_config(selected_template)
     answers = prompt_template_questions(template_config)
@@ -75,6 +109,7 @@ async def run() -> None:
         "ragbits_version": version,
         "python_version": python_version,
         **answers,
+        **ui_options,
     }
 
     # Build additional context using template config's build_context method
@@ -83,6 +118,9 @@ async def run() -> None:
 
     # Create project from template
     create_project(selected_template, project_path, context)
+
+    # Generate UI based on user selection
+    generate_ui(project_path, context)
 
 
 def entrypoint() -> None:
