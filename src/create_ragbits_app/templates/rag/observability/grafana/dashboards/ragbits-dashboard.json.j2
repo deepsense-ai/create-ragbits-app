@@ -75,7 +75,7 @@
       "id": 1,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -146,7 +146,7 @@
       "id": 15,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -217,7 +217,7 @@
       "id": 2,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -240,7 +240,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(ragbits_chat_message_count_messages_count[5m]) * 300)",
+          "expr": "sum(rate(ragbits_chat_messages_total[5m]) * 300)",
           "range": true,
           "refId": "A"
         }
@@ -284,7 +284,7 @@
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -307,7 +307,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(ragbits_chat_error_count_count[5m]) * 300 or vector(0)",
+          "expr": "rate(ragbits_chat_errors_total[5m]) * 300 or vector(0)",
           "range": true,
           "refId": "A"
         }
@@ -347,7 +347,7 @@
       "id": 4,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -371,7 +371,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "rate(ragbits_chat_conversation_count_conversations_total[5m]) * 300",
+          "expr": "sum(rate(ragbits_chat_conversations_total[5m]) * 300)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "range": true,
@@ -731,7 +731,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(ragbits_chat_message_count_messages_count[5m])",
+          "expr": "sum(rate(ragbits_chat_messages_total[5m]))",
           "legendFormat": "Messages/sec",
           "range": true,
           "refId": "A"
@@ -741,8 +741,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_chat_conversation_count_count[5m])",
+          "editorMode": "code",
+          "expr": "sum(rate(ragbits_chat_conversations_total[5m]))",
           "legendFormat": "Conversations/sec",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -935,8 +937,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "feedback"
+          }
         },
         "overrides": []
       },
@@ -968,8 +969,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_chat_feedback_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_chat_feedbacks_total[5m]) or vector(0)",
           "legendFormat": "Feedback Rate",
+          "range": true,
           "refId": "A"
         },
         {
@@ -977,8 +980,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_chat_state_verification_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_chat_state_verifications_total[5m]) or vector(0)",
           "legendFormat": "State Verifications",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1193,8 +1198,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_api_request_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_api_requests_total[5m])",
           "legendFormat": "API Requests/sec",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1202,8 +1209,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_api_error_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_api_errors_total[5m])",
           "legendFormat": "API Errors/sec",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1326,7 +1335,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "rate(ragbits_api_stream_chunk_count_chunks_total[5m])",
+          "expr": "rate(ragbits_api_stream_chunks_total[5m])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "Stream Chunks (95th %)",
@@ -1474,8 +1483,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_chat_error_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_chat_errors_total[5m]) or vector(0)",
           "legendFormat": "Chat Errors/sec",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1483,8 +1494,10 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(ragbits_api_error_count_count[5m])",
+          "editorMode": "code",
+          "expr": "rate(ragbits_chat_errors_total[5m]) or vector(0)",
           "legendFormat": "API Errors/sec",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1716,8 +1729,8 @@
       {
         "allowCustomValue": true,
         "current": {
-          "text": "837616d7fbb250c27b8500abc118096b",
-          "value": "837616d7fbb250c27b8500abc118096b"
+          "text": "1a9620747a9e7e1d5c82167c7b1a2ffa",
+          "value": "1a9620747a9e7e1d5c82167c7b1a2ffa"
         },
         "description": "",
         "hide": 2,
@@ -1737,5 +1750,5 @@
   "timezone": "",
   "title": "{{project_name}} Chat - Comprehensive Observability",
   "uid": "ragbits-{{project_name}}",
-  "version": 4
+  "version": 5
 }
