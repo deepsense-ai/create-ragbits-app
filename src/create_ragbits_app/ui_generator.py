@@ -26,7 +26,7 @@ class Template_Type(Enum):
 
 
 # Path to UI templates
-UI_TEMPLATES_DIR = pathlib.Path(__file__).parent / "templates" / "ui"
+UI_TEMPLATES_DIR = pathlib.Path(__file__).parent / "static" / "ui"
 
 
 def copy_ui_from_ragbits(project_path: str, context: dict[str, Any]) -> None:
