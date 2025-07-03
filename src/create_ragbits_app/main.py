@@ -12,7 +12,7 @@ from create_ragbits_app.template_utils import (
     prompt_template_questions,
 )
 from create_ragbits_app.ui import display_logo
-from create_ragbits_app.ui_generator import generate_ui, Template_Type, UI_Type
+from create_ragbits_app.ui_generator import Template_Type, UI_Type, generate_ui
 
 FILTERS["python_safe"] = lambda value: value.replace("-", "_")
 
@@ -42,7 +42,11 @@ def prompt_ui_options() -> dict:
     )
 
     ui_options = {
-        "ui_type": UI_Type.DEFAULT.value if "Default" in ui_choice else UI_Type.COPY.value if "Copy" in ui_choice else UI_Type.CREATE.value,
+        "ui_type": UI_Type.DEFAULT.value
+        if "Default" in ui_choice
+        else UI_Type.COPY.value
+        if "Copy" in ui_choice
+        else UI_Type.CREATE.value,
     }
 
     if ui_options["ui_type"] == UI_Type.CREATE.value:
@@ -50,7 +54,9 @@ def prompt_ui_options() -> dict:
             "What framework would you like to use for your UI project?",
             choices=["TypeScript", "TypeScript + React"],
         )
-        ui_options["framework"] = Template_Type.VANILLA_TS.value if "TypeScript" in framework_choice else Template_Type.REACT_TS.value
+        ui_options["framework"] = (
+            Template_Type.VANILLA_TS.value if "TypeScript" in framework_choice else Template_Type.REACT_TS.value
+        )
 
         # Ask for UI project name
         ui_options["ui_project_name"] = text("UI project name", default="ui")
