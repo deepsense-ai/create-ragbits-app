@@ -61,7 +61,6 @@ class RagTemplateConfig(TemplateConfig):
         vector_store = context.get("vector_store")
         parser = context.get("parser")
         additional_features = context.get("additional_features", [])
-        ui_type = context.get("ui_type", "default")
 
         # Check for specific features
         hybrid_search = "hybrid_search" in additional_features
@@ -102,26 +101,11 @@ class RagTemplateConfig(TemplateConfig):
                 ]
             )
 
-        # Add UI-related context
-        ui_context = {
-            "ui_type": ui_type,
-            "has_ui": ui_type != "default",
-        }
-
-        if ui_type == "create":
-            ui_context.update(
-                {
-                    "framework": context.get("framework", "vanilla"),
-                    "ui_project_name": context.get("ui_project_name", "ui"),
-                }
-            )
-
         return {
             "dependencies": dependencies,
             "hybrid_search": hybrid_search,
             "image_description": image_description,
             "observability": observability,
-            **ui_context,
         }
 
     def get_conditional_directories(self) -> dict[str, str]:

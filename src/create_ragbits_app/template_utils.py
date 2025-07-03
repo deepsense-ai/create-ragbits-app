@@ -39,9 +39,6 @@ def get_available_templates() -> list[dict]:
     templates = []
     for d in TEMPLATES_DIR.iterdir():
         if d.is_dir():
-            # Skip UI template as it's not a primary template
-            if d.name == "ui":
-                continue
             # Get template config to extract name and description
             config = get_template_config(d.name)
             templates.append({"dir_name": d.name, "name": config.name, "description": config.description})
