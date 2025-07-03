@@ -24,6 +24,12 @@ class Template_Type(Enum):
     VANILLA_TS = "vanilla-ts"
     REACT_TS = "react-ts"
 
+class UI_Type(Enum):
+    """Enum for UI types."""
+    DEFAULT = "default"
+    COPY = "copy"
+    CREATE = "create"
+
 
 # Path to UI templates
 UI_TEMPLATES_DIR = pathlib.Path(__file__).parent / "static" / "ui"
@@ -207,25 +213,25 @@ def create_react_ui(project_path: str, context: dict[str, Any]) -> None:
 
 def generate_ui(project_path: str, context: dict[str, Any]) -> None:
     """Generate UI based on the selected option."""
-    ui_type = context.get("ui_type", "default")
+    ui_type = context.get("ui_type", UI_Type.DEFAULT.value)
 
-    if ui_type == "default":
+    if ui_type == UI_Type.DEFAULT.value:
         console.print("[yellow]Using default hosted UI on localhost:8000[/yellow]")
         console.print("[blue]You can access the UI at http://localhost:8000 when your Ragbits app is running[/blue]")
         return
 
-    elif ui_type == "copy":
+    elif ui_type == UI_Type.COPY.value:
         copy_ui_from_ragbits(project_path, context)
 
-    elif ui_type == "create":
-        framework = context.get("framework", "vanilla-ts")
-        if framework == "vanilla-ts":
+    elif ui_type == UI_Type.CREATE.value:
+        framework = context.get("framework", Template_Type.VANILLA_TS.value)
+        if framework == Template_Type.VANILLA_TS.value:
             create_typescript_ui(project_path, context)
-        elif framework == "react-ts":
+        elif framework == Template_Type.REACT_TS.value:
             create_react_ui(project_path, context)
 
     # Add UI setup instructions to the main README
-    if ui_type in ["copy", "create"]:
+    if ui_type in [UI_Type.COPY.value, UI_Type.CREATE.value]:
         add_ui_instructions_to_readme(project_path, context)
 
 
