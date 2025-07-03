@@ -2,9 +2,9 @@
 UI generation utilities for create-ragbits-app.
 
 This module provides functionality for:
-1. Downloading UI from ragbits GitHub repository
-2. Creating UI projects from templates (TypeScript or React)
-3. Setting up UI configuration for default hosted UI
+1. Using the default hosted UI on localhost:8000
+2. Downloading UI from ragbits GitHub repository for customization
+3. Creating UI projects from templates (TypeScript or React)
 """
 
 import pathlib
