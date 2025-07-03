@@ -35,9 +35,9 @@ def prompt_ui_options() -> dict:
     ui_choice = list_input(
         "How would you like to handle the UI?",
         choices=[
-            "Default - Use hosted UI on localhost:8000 (no changes can be made)",
-            "Copy UI from ragbits source code to UI folder (you can modify components)",
-            "Create empty UI project - you can create your own frontend",
+            "Default - Runs hosted UI on localhost:8000 (no modifications permitted).",
+            "Copy - Clones UI from Ragbits source into local 'ui' directory (components can be customized).",
+            "Empty - Initializes a blank UI project (full frontend implementation required).",
         ],
     )
 
@@ -48,9 +48,9 @@ def prompt_ui_options() -> dict:
     if ui_options["ui_type"] == "create":
         framework_choice = list_input(
             "What framework would you like to use for your UI project?",
-            choices=["Vanilla TypeScript", "React"],
+            choices=["TypeScript", "TypeScript + React"],
         )
-        ui_options["framework"] = "vanilla" if "Vanilla" in framework_choice else "react"
+        ui_options["framework"] = "vanilla-ts" if "TypeScript" in framework_choice else "react-ts"
 
         # Ask for UI project name
         ui_options["ui_project_name"] = text("UI project name", default="ui")

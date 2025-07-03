@@ -3,12 +3,13 @@ UI generation utilities for create-ragbits-app.
 
 This module provides functionality for:
 1. Downloading UI from ragbits GitHub repository
-2. Creating UI projects from templates (Vanilla TypeScript or React)
+2. Creating UI projects from templates (TypeScript or React)
 3. Setting up UI configuration for default hosted UI
 """
 
 import pathlib
 import shutil
+from enum import Enum
 from typing import Any
 
 import jinja2
@@ -16,6 +17,13 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 console = Console()
+
+
+class Template_Type(Enum):
+    """Enum for UI template types."""
+    VANILLA_TS = "vanilla-ts"
+    REACT_TS = "react-ts"
+
 
 # Path to UI templates
 UI_TEMPLATES_DIR = pathlib.Path(__file__).parent / "templates" / "ui"
@@ -127,18 +135,18 @@ def copy_ui_from_ragbits(project_path: str, context: dict[str, Any]) -> None:
     console.print(f"[green]✓ UI downloaded and copied to {ui_path}[/green]")
 
 
-def create_ui_from_template(project_path: str, context: dict[str, Any], template_type: str) -> None:
+def create_ui_from_template(project_path: str, context: dict[str, Any], template_type: Template_Type) -> None:
     """Create UI project from template files."""
     ui_project_name = context.get("ui_project_name", "ui")
     ui_path = pathlib.Path(project_path) / ui_project_name
-    template_path = UI_TEMPLATES_DIR / template_type
+    template_path = UI_TEMPLATES_DIR / template_type.value
     
     if not template_path.exists():
         console.print(f"[red]Error: Template not found at {template_path}[/red]")
         return
     
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
-        progress.add_task(f"[cyan]Creating {template_type} UI project...", total=None)
+        progress.add_task(f"[cyan]Creating UI project...", total=None)
         
         # Create UI directory
         ui_path.mkdir(parents=True, exist_ok=True)
@@ -184,17 +192,17 @@ def create_ui_from_template(project_path: str, context: dict[str, Any], template
                     # Simple file copy
                     shutil.copy2(item, target_path)
     
-    console.print(f"[green]✓ {template_type.capitalize()} UI project created at {ui_path}[/green]")
+    console.print(f"[green]✓ UI project created at {ui_path}[/green]")
 
 
-def create_vanilla_typescript_ui(project_path: str, context: dict[str, Any]) -> None:
-    """Create an empty Vanilla TypeScript UI project."""
-    create_ui_from_template(project_path, context, "vanilla")
+def create_typescript_ui(project_path: str, context: dict[str, Any]) -> None:
+    """Create an empty TypeScript UI project."""
+    create_ui_from_template(project_path, context, Template_Type.VANILLA_TS)
 
 
 def create_react_ui(project_path: str, context: dict[str, Any]) -> None:
     """Create an empty React UI project."""
-    create_ui_from_template(project_path, context, "react")
+    create_ui_from_template(project_path, context, Template_Type.REACT_TS)
 
 
 def generate_ui(project_path: str, context: dict[str, Any]) -> None:
@@ -210,10 +218,10 @@ def generate_ui(project_path: str, context: dict[str, Any]) -> None:
         copy_ui_from_ragbits(project_path, context)
 
     elif ui_type == "create":
-        framework = context.get("framework", "vanilla")
-        if framework == "vanilla":
-            create_vanilla_typescript_ui(project_path, context)
-        elif framework == "react":
+        framework = context.get("framework", "vanilla-ts")
+        if framework == "vanilla-ts":
+            create_typescript_ui(project_path, context)
+        elif framework == "react-ts":
             create_react_ui(project_path, context)
 
     # Add UI setup instructions to the main README
@@ -227,69 +235,26 @@ def add_ui_instructions_to_readme(project_path: str, context: dict[str, Any]) ->
     if not readme_path.exists():
         return
 
-    ui_project_name = context.get("ui_project_name", "ui")
-    ui_type = context.get("ui_type")
-    framework = context.get("framework")
-
-    ui_instructions = f"""
-
-## UI Development
-
-This project includes a UI component located in the `{ui_project_name}/` directory.
-
-### Getting Started
-
-1. Navigate to the UI directory:
-   ```bash
-   cd {ui_project_name}
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-The UI will be available at http://localhost:3000
-
-### Building for Production
-
-```bash
-npm run build
-```
-
-### Framework Details
-
-"""
-
-    if ui_type == "copy":
-        ui_instructions += """This UI is a copy of the official Ragbits UI with the following features:
-- React-based interface
-- Full integration with Ragbits API
-- Pre-configured components and styling
-- Ready-to-use chat interface
-
-"""
-    elif ui_type == "create" and framework == "vanilla":
-        ui_instructions += """This is a Vanilla TypeScript UI project with:
-- Basic Vite setup
-- TypeScript configuration
-- @ragbits/api-client integration
-- Minimal starter template
-
-"""
-    elif ui_type == "create" and framework == "react":
-        ui_instructions += """This is a React UI project with:
-- React 18 with TypeScript
-- Vite build system
-- @ragbits/api-client-react integration
-- Basic component structure
-
-"""
+    # Load and render the UI instructions template
+    ui_instructions_template_path = UI_TEMPLATES_DIR / "ui_instructions.md.j2"
+    
+    if not ui_instructions_template_path.exists():
+        console.print(f"[red]Error: UI instructions template not found at {ui_instructions_template_path}[/red]")
+        return
+    
+    with open(ui_instructions_template_path) as f:
+        template_content = f.read()
+    
+    # Add enum values to context for template usage
+    template_context = context.copy()
+    template_context.update({
+        "VANILLA_TS": Template_Type.VANILLA_TS.value,
+        "REACT_TS": Template_Type.REACT_TS.value,
+    })
+    
+    # Render template with context
+    template = jinja2.Template(template_content)
+    ui_instructions = template.render(**template_context)
 
     # Append to README
     with open(readme_path, "a") as f:

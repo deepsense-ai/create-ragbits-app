@@ -1,0 +1,53 @@
+## UI Development
+
+This project includes a UI component located in the `{{ ui_project_name }}/` directory.
+
+### Getting Started
+
+1. Navigate to the UI directory:
+   ```bash
+   cd {{ ui_project_name }}
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+The UI will be available at http://localhost:3000
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+### Framework Details
+
+{% if ui_type == "copy" %}
+This UI is a copy of the official Ragbits UI with the following features:
+- React-based interface
+- Full integration with Ragbits API
+- Pre-configured components and styling
+- Ready-to-use chat interface
+
+{% elif ui_type == "create" and framework == VANILLA_TS.value %}
+This is a TypeScript UI project with:
+- Basic Vite setup
+- TypeScript configuration
+- @ragbits/api-client integration
+- Minimal starter template
+
+{% elif ui_type == "create" and framework == REACT_TS.value %}
+This is a React UI project with:
+- React 18 with TypeScript
+- Vite build system
+- @ragbits/api-client-react integration
+- Basic component structure
+
+{% endif %} 
