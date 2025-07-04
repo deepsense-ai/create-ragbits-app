@@ -1,0 +1,35 @@
+import { RagbitsClient } from '@ragbits/api-client'
+
+// Initialize the Ragbits client
+const client = new RagbitsClient({
+  baseUrl: 'http://localhost:8000'
+})
+
+// Example usage
+async function example() {
+  try {
+    // You can use the client here
+    console.log('Ragbits client initialized:', client)
+
+    // Example: You can add API calls here
+    // const response = await client.chat.sendMessage({ message: "Hello" })
+    // console.log('Response:', response)
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+  const app = document.getElementById('app')
+  if (app) {
+    app.innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <h1>Ragbits TypeScript UI</h1>
+        <p>Check the console for client initialization.</p>
+        <p>Edit <code>src/main.ts</code> to start building your UI.</p>
+      </div>
+    `
+  }
+  example()
+})

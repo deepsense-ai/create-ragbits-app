@@ -12,6 +12,7 @@ from create_ragbits_app.template_utils import (
     prompt_template_questions,
 )
 from create_ragbits_app.ui import display_logo
+from create_ragbits_app.ui_generator import Template_Type, UI_Type, UIOptions, generate_ui
 
 FILTERS["python_safe"] = lambda value: value.replace("-", "_")
 
@@ -25,6 +26,42 @@ async def get_latest_ragbits_version() -> str:
             return response_json["info"]["version"]
     except TimeoutError:
         return "0.10.0"
+
+
+def prompt_ui_options() -> UIOptions:
+    """Prompt user for UI generation options."""
+    from inquirer.shortcuts import list_input, text
+
+    ui_choice = list_input(
+        "How would you like to handle the UI?",
+        choices=[
+            "Default - Runs hosted UI on localhost:8000 (no modifications permitted).",
+            "Copy - Clones UI from Ragbits source into local 'ui' directory (components can be customized).",
+            "Empty - Initializes a blank UI project (full frontend implementation required).",
+        ],
+    )
+
+    ui_options: UIOptions = {
+        "ui_type": UI_Type.DEFAULT
+        if "Default" in ui_choice
+        else UI_Type.COPY
+        if "Copy" in ui_choice
+        else UI_Type.CREATE,
+        "framework": None,
+        "ui_project_name": "ui",
+    }
+
+    if ui_options["ui_type"] == UI_Type.CREATE:
+        framework_choice = list_input(
+            "What framework would you like to use for your UI project?",
+            choices=["TypeScript", "TypeScript + React"],
+        )
+        ui_options["framework"] = Template_Type.REACT_TS if "React" in framework_choice else Template_Type.VANILLA_TS
+
+        # Ask for UI project name
+        ui_options["ui_project_name"] = text("UI project name", default=ui_options["ui_project_name"])
+
+    return ui_options
 
 
 async def run() -> None:
@@ -59,6 +96,9 @@ async def run() -> None:
         print(f"Directory '{project_name}' already exists and is not empty. Project creation aborted.")
         return
 
+    # Get UI options
+    ui_options = prompt_ui_options()
+
     # Get template config and prompt for questions
     template_config = get_template_config(selected_template)
     answers = prompt_template_questions(template_config)
@@ -75,6 +115,7 @@ async def run() -> None:
         "ragbits_version": version,
         "python_version": python_version,
         **answers,
+        **ui_options,
     }
 
     # Build additional context using template config's build_context method
@@ -83,6 +124,9 @@ async def run() -> None:
 
     # Create project from template
     create_project(selected_template, project_path, context)
+
+    # Generate UI based on user selection
+    generate_ui(project_path, context)
 
 
 def entrypoint() -> None:
