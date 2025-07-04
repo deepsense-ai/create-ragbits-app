@@ -42,20 +42,21 @@ def prompt_ui_options() -> dict:
     )
 
     ui_options = {
-        "ui_type": UI_Type.DEFAULT.value
+        "ui_type": UI_Type.DEFAULT
         if "Default" in ui_choice
-        else UI_Type.COPY.value
+        else UI_Type.COPY
         if "Copy" in ui_choice
-        else UI_Type.CREATE.value,
+        else UI_Type.CREATE,
+        "framework": None
     }
 
-    if ui_options["ui_type"] == UI_Type.CREATE.value:
+    if ui_options["ui_type"] == UI_Type.CREATE:
         framework_choice = list_input(
             "What framework would you like to use for your UI project?",
             choices=["TypeScript", "TypeScript + React"],
         )
         ui_options["framework"] = (
-            Template_Type.VANILLA_TS.value if "TypeScript" in framework_choice else Template_Type.REACT_TS.value
+            Template_Type.VANILLA_TS if "TypeScript" in framework_choice else Template_Type.REACT_TS
         )
 
         # Ask for UI project name

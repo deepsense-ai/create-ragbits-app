@@ -255,25 +255,25 @@ def create_react_ui(project_path: str, context: dict[str, Any]) -> None:
 
 def generate_ui(project_path: str, context: dict[str, Any]) -> None:
     """Generate UI based on the selected option."""
-    ui_type = context.get("ui_type", UI_Type.DEFAULT.value)
+    ui_type = context.get("ui_type", UI_Type.DEFAULT)
 
-    if ui_type == UI_Type.DEFAULT.value:
+    if ui_type == UI_Type.DEFAULT:
         console.print("[yellow]Using default hosted UI on localhost:8000[/yellow]")
         console.print("[blue]You can access the UI at http://localhost:8000 when your Ragbits app is running[/blue]")
         return
 
-    elif ui_type == UI_Type.COPY.value:
+    elif ui_type == UI_Type.COPY:
         copy_ui_from_ragbits(project_path, context)
 
-    elif ui_type == UI_Type.CREATE.value:
-        framework = context.get("framework", Template_Type.VANILLA_TS.value)
-        if framework == Template_Type.VANILLA_TS.value:
+    elif ui_type == UI_Type.CREATE:
+        framework = context.get("framework", Template_Type.VANILLA_TS)
+        if framework == Template_Type.VANILLA_TS:
             create_typescript_ui(project_path, context)
-        elif framework == Template_Type.REACT_TS.value:
+        elif framework == Template_Type.REACT_TS:
             create_react_ui(project_path, context)
 
     # Add UI setup instructions to the main README
-    if ui_type in [UI_Type.COPY.value, UI_Type.CREATE.value]:
+    if ui_type in [UI_Type.COPY, UI_Type.CREATE]:
         add_ui_instructions_to_readme(project_path, context)
 
 
@@ -297,8 +297,8 @@ def add_ui_instructions_to_readme(project_path: str, context: dict[str, Any]) ->
     template_context = context.copy()
     template_context.update(
         {
-            "VANILLA_TS": Template_Type.VANILLA_TS.value,
-            "REACT_TS": Template_Type.REACT_TS.value,
+            "VANILLA_TS": Template_Type.VANILLA_TS,
+            "REACT_TS": Template_Type.REACT_TS,
         }
     )
 
