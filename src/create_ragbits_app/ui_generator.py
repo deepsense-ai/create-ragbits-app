@@ -14,7 +14,7 @@ import tempfile
 import urllib.parse
 import zipfile
 from enum import Enum
-from typing import Any
+from typing import Any, TypedDict
 
 import jinja2
 import requests
@@ -37,6 +37,14 @@ class UI_Type(Enum):
     DEFAULT = "default"
     COPY = "copy"
     CREATE = "create"
+
+
+class UIOptions(TypedDict):
+    """Type definition for UI options dictionary."""
+
+    ui_type: UI_Type
+    framework: Template_Type | None
+    ui_project_name: str
 
 
 # Path to UI templates
