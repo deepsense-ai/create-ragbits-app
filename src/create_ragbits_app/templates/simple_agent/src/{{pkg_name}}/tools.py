@@ -12,9 +12,12 @@ def get_yahoo_finance_markdown() -> str:
     """
     url = "https://finance.yahoo.com/"
 
-    # Headers to mimic a real browser request
+    user_agent = (
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    )
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': user_agent
     }
 
     try:
