@@ -1,0 +1,12 @@
+import logging
+
+from ragbits.core.llms import LiteLLM
+from {{pkg_name}}.config import config
+
+# disable logging from LiteLLM as ragbits already logs the necessary information
+litellm_logger = logging.getLogger('LiteLLM')
+litellm_logger.propagate = False
+
+
+def get_llm():
+    return LiteLLM(model_name=config.llm_model, use_structured_output=True, api_key=config.openai_api_key)

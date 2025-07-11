@@ -41,14 +41,15 @@ For example, see the `templates/example-template` directory.
 The `template_config.py` file should define a `TemplateConfig` class that inherits from `TemplateConfig` and creates a `config` instance at the bottom of the file:
 
 ```python
+from typing import List
 from create_ragbits_app.template_config_base import (
-    BaseTemplateConfig,
+    TemplateConfig,
     TextQuestion,
     ListQuestion,
     ConfirmQuestion
 )
 
-class TemplateConfig(TemplateConfig):
+class ExampleTemplateConfig(TemplateConfig):
     name: str = "My Template Name"
     description: str = "Description of the template"
 
@@ -62,5 +63,5 @@ class TemplateConfig(TemplateConfig):
     ]
 
 # Create instance of the config to be imported
-config = TemplateConfig()
+config = ExampleTemplateConfig()
 ```
