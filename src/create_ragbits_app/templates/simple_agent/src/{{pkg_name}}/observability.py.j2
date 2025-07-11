@@ -1,0 +1,72 @@
+{%- if observability %}
+"""
+Observability configuration for {{project_name}}.
+"""
+
+from opentelemetry import metrics, trace
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from ragbits.core.audit import set_metric_handlers, set_trace_handlers
+
+from {{pkg_name}}.config import config
+
+
+def setup_observability():
+    """Set up OpenTelemetry tracing and metrics."""
+    if not config.enable_tracing and not config.enable_metrics:
+        return
+
+    # Create resource with service name
+    resource = Resource(attributes={
+        SERVICE_NAME: config.service_name,
+    })
+
+    # Set up tracing
+    if config.enable_tracing:
+        span_exporter = OTLPSpanExporter(
+            endpoint=config.otel_exporter_endpoint,
+            insecure=True
+        )
+        tracer_provider = TracerProvider(resource=resource)
+        tracer_provider.add_span_processor(
+            BatchSpanProcessor(span_exporter, max_export_batch_size=1)
+        )
+        trace.set_tracer_provider(tracer_provider)
+        set_trace_handlers("otel")
+
+    # Set up metrics
+    if config.enable_metrics:
+        metric_exporter = OTLPMetricExporter(
+            endpoint=config.otel_exporter_endpoint,
+            insecure=True
+        )
+        metric_reader = PeriodicExportingMetricReader(
+            metric_exporter,
+            export_interval_millis=1000
+        )
+        meter_provider = MeterProvider(
+            metric_readers=[metric_reader],
+            resource=resource
+        )
+        metrics.set_meter_provider(meter_provider)
+        set_metric_handlers("otel")
+
+    print(f"✅ Observability set up for service: {config.service_name}")
+    print(f"📊 Tracing: {'enabled' if config.enable_tracing else 'disabled'}")
+    print(f"📈 Metrics: {'enabled' if config.enable_metrics else 'disabled'}")
+    print(f"🔗 OTLP Endpoint: {config.otel_exporter_endpoint}")
+{%- else %}
+"""
+Observability module - observability not enabled for this project.
+"""
+
+
+def setup_observability():
+    """Observability not enabled - no setup required."""
+    pass
+{%- endif %}
