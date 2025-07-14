@@ -48,7 +48,7 @@ class DeepResearchTemplateConfig(TemplateConfig):
             "pydantic-settings",
             "docling",
             "markdownify",
-            "tavily-python"
+            "tavily-python",
         ]
 
         # Add observability dependencies
