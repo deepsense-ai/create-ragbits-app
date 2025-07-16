@@ -56,13 +56,14 @@ class ChatApp(ChatInterface):
                     yield self.create_text_response(result)
                 case ToolCall():
                     yield self.create_live_update(
-                        update_id="2",
+                        update_id=result.id,
                         type=LiveUpdateType.START,
                         label="Fetching...",
+                        description=f"Using {result.name}.",
                     )
                 case ToolCallResult():
                     yield self.create_live_update(
-                        update_id="2",
+                        update_id=result.id,
                         type=LiveUpdateType.FINISH,
                         label="Fetching",
                         description=f"Found {len(result.result)} relevant chunks.",

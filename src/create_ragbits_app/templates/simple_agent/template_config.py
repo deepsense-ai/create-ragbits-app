@@ -47,7 +47,7 @@ class SimpleAgentTemplateConfig(TemplateConfig):
             "ragbits-agents",
             "pydantic-settings",
             "markdownify",
-            "requests",
+            "httpx",
         ]
 
         # Add observability dependencies
@@ -70,6 +70,7 @@ class SimpleAgentTemplateConfig(TemplateConfig):
         """Define directories that should be conditionally included."""
         return {
             "observability": "observability",
+            "docker": "observability",
         }
 
     def should_include_file(self, file_path: pathlib.Path, context: dict) -> bool:
