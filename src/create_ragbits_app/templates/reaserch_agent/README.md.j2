@@ -1,0 +1,56 @@
+# {{ project_name }}
+
+A Deep Research type agent built with ragbits.
+You can read more about ragbits [here](https://ragbits.deepsense.ai).
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+uv sync
+```
+{%- if observability %}
+
+2. Run docker compose:
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+## Observability
+
+This project includes a complete observability stack with:
+- **OpenTelemetry Collector**: Collects traces and metrics
+- **Prometheus**: Stores and queries metrics
+- **Tempo**: Stores and queries distributed traces
+- **Grafana**: Visualizes traces and metrics with pre-configured dashboards
+
+### Accessing the Observability Stack
+
+- **Grafana Dashboard**: http://localhost:3000 (admin/admin)
+- **Prometheus**: http://localhost:9090
+- **Tempo**: http://localhost:3200
+- **OpenTelemetry Collector**: http://localhost:4317 (gRPC), http://localhost:4318 (HTTP)
+
+The Grafana dashboard includes panels for:
+- Recent traces from your RAG application
+- LLM input token rates
+- Prompt throughput percentiles
+- Token throughput rates
+- Time to first token metrics
+
+### Configuration
+
+Observability settings can be configured in your `.env` file:
+```bash
+# Observability configuration
+OTEL_EXPORTER_ENDPOINT=http://localhost:4317
+SERVICE_NAME={{project_name}}
+ENABLE_TRACING=true
+ENABLE_METRICS=true
+```
+{%- endif %}
+
+### Environmental variables
+To make the agent work .env file with this API keys is required:
+OPENAI_API_KEY <- for LLM
+TAVILY_API_KEY <- for Search and webview
