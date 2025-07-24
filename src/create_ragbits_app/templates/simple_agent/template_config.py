@@ -5,7 +5,6 @@ Configuration for the Simple Agent template.
 import pathlib
 
 from create_ragbits_app.template_config_base import (
-    MultiSelectQuestion,
     Question,
     TemplateConfig,
 )

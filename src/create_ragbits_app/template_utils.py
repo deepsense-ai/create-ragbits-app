@@ -17,10 +17,10 @@ import os
 import pathlib
 import shutil
 import sys
+from typing import Any
 
 import jinja2
 import yaml
-from typing import Any
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.tree import Tree
@@ -145,27 +145,29 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
     conditional_directories = template_config.get_conditional_directories()
     shared_conditional_directories = shared_config.get_conditional_directories()
 
-    def should_include_path(path: pathlib.Path, base_path: pathlib.Path, config) -> bool:
+    def should_include_path(path: pathlib.Path, base_path: pathlib.Path, config: TemplateConfig) -> bool:
         """Check if a path should be included based on conditional directories and file inclusion logic."""
         rel_path = path.relative_to(base_path)
 
         # Check conditional directories
         for dir_name, context_var in conditional_directories.items():
-            if str(rel_path).startswith(dir_name) or str(rel_path) == dir_name:
-                if not context.get(context_var, False):
-                    return False
+            if (str(rel_path).startswith(dir_name) or str(rel_path) == dir_name) and not context.get(
+                context_var, False
+            ):
+                return False
 
         # Check shared conditional directories if processing shared template
         if base_path == shared_template_path:
             for dir_name, context_var in shared_conditional_directories.items():
-                if str(rel_path).startswith(dir_name) or str(rel_path) == dir_name:
-                    if not context.get(context_var, False):
-                        return False
+                if (str(rel_path).startswith(dir_name) or str(rel_path) == dir_name) and not context.get(
+                    context_var, False
+                ):
+                    return False
 
         # Check template config's custom file inclusion logic
         return config.should_include_file(rel_path, context)
 
-    def process_template_file(item: pathlib.Path, source_path: pathlib.Path, target_path: pathlib.Path) -> None:
+    def process_template_file(item: pathlib.Path, target_path: pathlib.Path) -> None:
         """Process a single template file."""
         if item.suffix == ".j2":
             with open(item) as f:
@@ -179,14 +181,15 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
             target_path = target_path.with_suffix("")
 
             # Special handling for docker-compose files
-            if target_path.name in ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]:
-                if target_path.exists():
-                    # Read existing content and merge
-                    with open(target_path) as f:
-                        existing_content = f.read()
-                    rendered_content = merge_docker_compose_files(existing_content, rendered_content)
-                    console.print(
-                        f"[cyan]Merged docker-compose files at {target_path.relative_to(project_path)}[/cyan]")
+            if (
+                target_path.name in ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]
+                and target_path.exists()
+            ):
+                # Read existing content and merge
+                with open(target_path) as f:
+                    existing_content = f.read()
+                rendered_content = merge_docker_compose_files(existing_content, rendered_content)
+                console.print(f"[cyan]Merged docker-compose files at {target_path.relative_to(project_path)}[/cyan]")
 
             # Write the (possibly merged) content
             with open(target_path, "w") as f:
@@ -197,7 +200,7 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
             # Simple file copy
             shutil.copy2(item, target_path)
 
-    def process_template_files(source_path: pathlib.Path, config) -> None:
+    def process_template_files(source_path: pathlib.Path, config: TemplateConfig) -> None:
         """Process files from a template directory."""
         for item in source_path.glob("**/*"):
             if item.name == "template_config.py":
@@ -228,7 +231,7 @@ def create_project(template_name: str, project_path: str, context: dict) -> None
             if item.is_dir():
                 os.makedirs(target_path, exist_ok=True)
             elif item.is_file():
-                process_template_file(item, source_path, target_path)
+                process_template_file(item, target_path)
 
     # Process files with progress indicator
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:

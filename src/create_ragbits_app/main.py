@@ -7,10 +7,10 @@ from jinja2.filters import FILTERS
 
 from create_ragbits_app.template_utils import (
     create_project,
+    deep_merge_dicts,
     get_available_templates,
     get_template_config,
     prompt_template_questions,
-    deep_merge_dicts,
 )
 from create_ragbits_app.ui import display_logo
 from create_ragbits_app.ui_generator import Template_Type, UI_Type, UIOptions, generate_ui

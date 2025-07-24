@@ -5,7 +5,6 @@ Configuration for the RAG template.
 import pathlib
 
 from create_ragbits_app.template_config_base import (
-    ListQuestion,
     MultiSelectQuestion,
     Question,
     TemplateConfig,
@@ -21,7 +20,7 @@ class SharedTemplateConfig(TemplateConfig):
     questions: list[Question] = [
         MultiSelectQuestion(
             name="shared_features",
-            message="Select additional features you want to include:",
+            message="Select additional features you want to include",
             choices=[
                 {
                     "display_name": "Observability stack with Grafana, Tempo, and OpenTelemetry",

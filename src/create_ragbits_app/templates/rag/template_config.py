@@ -93,8 +93,7 @@ class RagTemplateConfig(TemplateConfig):
 
     def get_conditional_directories(self) -> dict[str, str]:
         """Define directories that should be conditionally included."""
-        return {
-        }
+        return {}
 
     def should_include_file(self, file_path: pathlib.Path, context: dict) -> bool:
         """Custom file inclusion logic for RAG template."""
