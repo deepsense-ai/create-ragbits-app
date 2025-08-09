@@ -7,6 +7,7 @@ from jinja2.filters import FILTERS
 
 from create_ragbits_app.template_utils import (
     create_project,
+    deep_merge_dicts,
     get_available_templates,
     get_template_config,
     prompt_template_questions,
@@ -103,6 +104,9 @@ async def run() -> None:
     template_config = get_template_config(selected_template)
     answers = prompt_template_questions(template_config)
 
+    shared_config = get_template_config("shared")
+    shared_answers = prompt_template_questions(shared_config)
+
     # Detect Python version
     import sys
 
@@ -116,11 +120,15 @@ async def run() -> None:
         "python_version": python_version,
         **answers,
         **ui_options,
+        **shared_answers,
     }
 
     # Build additional context using template config's build_context method
     additional_context = template_config.build_context(context)
     context.update(additional_context)
+    # Build additional context using shared template config's build_context method
+    additional_shared_context = shared_config.build_context(context)
+    context = deep_merge_dicts(context, additional_shared_context)
 
     # Create project from template
     create_project(selected_template, project_path, context)
