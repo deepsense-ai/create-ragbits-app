@@ -1,0 +1,25 @@
+from pathlib import Path
+
+from pydantic_settings import BaseSettings
+
+
+class AppConfig(BaseSettings):
+
+    # LLM configuration
+    llm_model: str = "gpt-4.1-mini"
+    openai_api_key: str
+    tavily_api_key: str
+
+    {%- if observability %}
+    # Observability configuration
+    otel_exporter_endpoint: str = "http://localhost:4317"
+    service_name: str = "{{project_name}}"
+    enable_tracing: bool = True
+    enable_metrics: bool = True
+    {%- endif %}
+
+    class Config:
+        env_file = Path(__file__).parent.parent.parent / ".env"
+
+
+config = AppConfig()

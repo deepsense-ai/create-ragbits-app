@@ -1,0 +1,78 @@
+"""
+Main entry point for the {{ project_name }} application.
+To run this file, use the following command:
+
+```bash
+ragbits api run {{pkg_name}}.main:ChatApp
+```
+"""
+from collections.abc import AsyncGenerator
+
+from ragbits.chat.interface import ChatInterface
+from ragbits.chat.interface.types import ChatResponse, ChatContext, LiveUpdateType
+from ragbits.core.prompt.base import ChatFormat
+from ragbits.agents import Agent, ToolCallResult
+from ragbits.core.llms import ToolCall
+from {{pkg_name}}.prompts import OrchestratorPrompt, OrchestratorPromptInput
+from {{pkg_name}}.components import get_llm
+from {{pkg_name}}.tools import web_search, reviewer_agent, researcher_agent
+{%- if observability %}
+from {{pkg_name}}.observability import setup_observability
+
+# Initialize observability
+setup_observability()
+{%- endif %}
+
+
+
+
+class ChatApp(ChatInterface):
+    """Chat interface for {{ project_name }} application."""
+
+    async def setup(self) -> None:
+        self.llm = get_llm()
+        self.orchestrator_agent = Agent(llm=self.llm, prompt=OrchestratorPrompt,
+                                        tools=[web_search, researcher_agent, reviewer_agent])
+
+    async def chat(
+            self,
+            message: str,
+            history: ChatFormat | None = None,
+            context: ChatContext | None = None,
+    ) -> AsyncGenerator[ChatResponse, None]:
+
+        # Create prompt with context
+        prompt_input = OrchestratorPromptInput(
+            subject=message
+        )
+
+        # Stream the response from the LLM
+        async for result in self.orchestrator_agent.run_streaming(prompt_input):
+            match result:
+                case str():
+                    yield self.create_live_update(
+                        update_id="1",
+                        type=LiveUpdateType.START,
+                        label="Answering...",
+                    )
+                    yield self.create_text_response(result)
+                case ToolCall():
+                    yield self.create_live_update(
+                        update_id=result.id,
+                        type=LiveUpdateType.START,
+                        label="Fetching...",
+                        description=f"Using {result.name}.",
+                    )
+                case ToolCallResult():
+                    yield self.create_live_update(
+                        update_id=result.id,
+                        type=LiveUpdateType.FINISH,
+                        label="Fetching",
+                        description=f"Found {len(result.result)} relevant chunks.",
+                    )
+
+        yield self.create_live_update(
+            update_id="1",
+            type=LiveUpdateType.FINISH,
+            label="Answer",
+        )

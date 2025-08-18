@@ -1,0 +1,69 @@
+from ragbits.agents import Agent
+from tavily import TavilyClient
+from docling.document_converter import DocumentConverter
+
+from {{pkg_name}}.components import get_llm
+from {{pkg_name}}.prompts import ResearcherPrompt, ResearcherPromptInput, ReviewerPromptInput, ReviewerPrompt
+from {{pkg_name}}.config import config
+
+tavily_client = TavilyClient(api_key=config.tavily_api_key)
+
+
+def web_search(query: str) -> str:
+    """
+    Searches the web using query
+    :param query: search query
+    :return: search result
+    """
+    response = tavily_client.search(query, max_results=10)
+    return str(response)
+
+
+def get_webpage(url: str) -> str:
+    """
+    Downloads the content of the webpage
+    :param url: url of the webpage
+    :return: content of the webpage
+    """
+    response = tavily_client.extract(url)
+    return str(response)
+
+
+def parse_pdf(url: str) -> str:
+    """
+    Parses the pdf file from url
+    :param url: url of the pdf file
+    :return: content of the pdf file in markdown format
+    """
+    converter = DocumentConverter()
+    result = converter.convert(url)
+    return result.document.export_to_markdown()
+
+
+async def researcher_agent(subject: str, url: str) -> str:
+    """
+    This spawns a researcher agent that will write paragraph on a given subject
+    :param subject: subject for the researcher
+    :param url: url of the website which researcher will use for it's research
+    :return: written paragraph
+    """
+    llm = get_llm()
+    researcher = Agent(llm=llm, prompt=ResearcherPrompt, tools=[get_webpage, parse_pdf])
+    prompt_input = ResearcherPromptInput(subject=subject, url=url)
+    response = await researcher.run(prompt_input)
+    return response.content
+
+
+async def reviewer_agent(subject: str, paragraphs: str) -> str:
+    """
+    This spawns a reviewer agent that will take combined paragraphs from researchers and
+    write a reviewed report for the user on a given subject
+    :param subject: subject of the report
+    :param paragraphs: paragraphs of the report
+    :return: written report
+    """
+    llm = get_llm()
+    reviewer = Agent(llm=llm, prompt=ReviewerPrompt)
+    prompt_input = ReviewerPromptInput(paragraphs=paragraphs, subject=subject)
+    response = await reviewer.run(prompt_input)
+    return response.content
