@@ -64,13 +64,11 @@ class DeepResearchTemplateConfig(TemplateConfig):
 
         return {
             "dependencies": dependencies,
-            "observability": observability,
         }
 
     def get_conditional_directories(self) -> dict[str, str]:
         """Define directories that should be conditionally included."""
         return {
-            "observability": "observability",
             "docker": "observability",
         }
 
