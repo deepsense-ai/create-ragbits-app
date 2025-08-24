@@ -77,19 +77,23 @@ The following secrets must be set in the repository settings:
 
 1. **Determines version**: Either uses manual version or auto-increments based on release type (patch/minor/major)
 2. **Updates version**: Modifies the version in `pyproject.toml` with the determined version
-3. **Builds package**: Uses `uv build` to create wheel and source distributions
-4. **Publishes to PyPI**: Uses `twine upload` to publish the package (skipped in dry-run mode)
-5. **Creates git tag**: Tags the commit with the version number (skipped in dry-run mode)
-6. **Creates GitHub release**: Creates a GitHub release with built artifacts (optional, skipped in dry-run mode)
+3. **Commits version update**: Commits and pushes the updated `pyproject.toml` to the repository (skipped in dry-run mode)
+4. **Builds package**: Uses `uv build` to create wheel and source distributions
+5. **Publishes to PyPI**: Uses `twine upload` to publish the package (skipped in dry-run mode)
+6. **Creates git tag**: Tags the commit with the version number (skipped in dry-run mode)
+7. **Creates GitHub release**: Creates a GitHub release with built artifacts (optional, skipped in dry-run mode)
 
 #### Dry Run Mode
 
 When `dry_run` is enabled, the workflow will:
 - Build the package and verify it's correct
 - Show what version would be published
+- Skip committing the version update to the repository
 - Skip actual publishing to PyPI
 - Skip creating git tags and GitHub releases
 - Provide a summary of what would happen in a real run
+
+This ensures that dry runs don't modify the repository state.
 
 ### Prerequisites
 

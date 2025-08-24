@@ -31,6 +31,9 @@ on:
 jobs:
   publish-pypi:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -91,6 +94,17 @@ jobs:
           sed -i 's/version = "[^"]*"/version = "${{ steps.version.outputs.new_version }}"/' pyproject.toml
           echo "Updated version to ${{ steps.version.outputs.new_version }}"
           grep "version = " pyproject.toml
+
+      - name: Commit and push version update
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pyproject.toml
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build package
         run: |
